@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proventure Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { navy: { 800: '#0f172a', 900: '#020617' }, electric: '#3b82f6' } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #334155; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden bg-slate-100">
+
+    <script>
+        // *** PASTE YOUR GOOGLE SCRIPT URL HERE ***
+        const API_URL = "https://script.google.com/macros/s/AKfycbx08e8q162tLv2YLmvGOJP9pcJmuAu-wVnJRF0SLYY_sUKq8F9cUguBxgc0l3drm7uX/exec"; 
+    </script>
+
+    <div id="global-loader" class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900 text-white hidden">
+        <div class="text-center"><div class="loader mx-auto mb-4"></div><p class="animate-pulse tracking-widest text-sm">PROVENTURE</p></div>
+    </div>
+
+    <section id="login-screen" class="h-full w-full flex items-center justify-center bg-navy-900 absolute top-0 left-0 z-40">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4">
+            <h1 class="text-3xl font-bold text-navy-800 text-center mb-8">Proventure<span class="text-electric">.</span></h1>
+            <form onsubmit="handleLogin(event)" class="space-y-5">
+                <input type="email" id="email" class="w-full px-4 py-3 rounded-lg bg-slate-50 border" placeholder="Email" required>
+                <input type="password" id="password" class="w-full px-4 py-3 rounded-lg bg-slate-50 border" placeholder="Password" required>
+                <button type="submit" class="w-full bg-navy-800 hover:bg-electric text-white font-semibold py-3 rounded-lg transition">Login</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="app-container" class="h-full w-full flex hidden">
+        <aside class="w-64 bg-navy-900 text-white flex flex-col p-4">
+            <div class="text-xl font-bold mb-8 flex items-center gap-2"><i class="fa-solid fa-cube text-electric"></i> Proventure</div>
+            <nav class="space-y-2 flex-1">
+                <button onclick="router('dashboard')" class="w-full text-left p-3 hover:bg-white/10 rounded-lg">Dashboard</button>
+                <button onclick="router('tasks')" class="w-full text-left p-3 hover:bg-white/10 rounded-lg">Tasks</button>
+            </nav>
+            <button onclick="location.reload()" class="p-3 hover:text-red-400 text-left">Logout</button>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-slate-100 p-8 relative">
+            <div id="dashboard-view" class="max-w-6xl mx-auto space-y-6">
+                <h2 class="text-2xl font-bold text-navy-800">Overview</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-electric">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Active</p>
+                        <h3 id="stat-active" class="text-3xl font-bold text-navy-800">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Review</p>
+                        <h3 id="stat-review" class="text-3xl font-bold text-navy-800">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Completed</p>
+                        <h3 id="stat-completed" class="text-3xl font-bold text-navy-800">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tasks-view" class="max-w-6xl mx-auto hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-navy-800">Tasks</h2>
+                    <button onclick="openModal()" class="bg-electric text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">New Task</button>
+                </div>
+                <div id="task-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </main>
+    </section>
+
+    <div id="task-modal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-xl w-full max-w-lg">
+            <h3 class="text-lg font-bold mb-4">Add Task</h3>
+            <form onsubmit="submitTask(event)" class="space-y-4">
+                <input id="task-title" class="w-full p-2 border rounded" placeholder="Title" required>
+                <textarea id="task-desc" class="w-full p-2 border rounded" placeholder="Description"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="document.getElementById('task-modal').classList.add('hidden')" class="px-4 py-2">Cancel</button>
+                    <button type="submit" class="bg-navy-800 text-white px-4 py-2 rounded">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let appData = {};
+
+        async function apiCall(params, method = 'GET', body = null) {
+            let url = `${API_URL}?${new URLSearchParams(params)}`;
+            let options = { method: method };
+            
+            if (method === 'POST') {
+                url = API_URL; // POST uses body, not params
+                options.body = JSON.stringify(body); // Send raw JSON
+                // Crucial for GAS:
+                options.redirect = "follow";
+                options.headers = { "Content-Type": "text/plain;charset=utf-8" };
+            }
+
+            const response = await fetch(url, options);
+            const json = await response.json();
+            return json;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            toggleLoader(true);
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const data = await apiCall({ action: 'login', email, password });
+                
+                if(data.error) throw new Error(data.error);
+                
+                currentUser = data;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                fetchData();
+            } catch(err) {
+                Swal.fire('Error', err.message, 'error');
+                toggleLoader(false);
+            }
+        }
+
+        async function fetchData() {
+            try {
+                const data = await apiCall({ action: 'getData', userId: currentUser.UserID, role: currentUser.Role });
+                if(data.error) throw new Error(data.error);
+                
+                appData = data;
+                renderApp();
+                toggleLoader(false);
+            } catch(err) {
+                console.error(err);
+            }
+        }
+
+        async function submitTask(e) {
+            e.preventDefault();
+            toggleLoader(true);
+            const payload = {
+                ProjectID: appData.projects[0]?.ProjectID || 'PRJ-01', // Default to first project
+                TaskName: document.getElementById('task-title').value,
+                Description: document.getElementById('task-desc').value,
+                Priority: 'Medium',
+                CreatedBy: currentUser.UserID
+            };
+
+            await apiCall({}, 'POST', { action: 'addTask', payload });
+            
+            document.getElementById('task-modal').classList.add('hidden');
+            fetchData(); // Refresh
+            Swal.fire('Success', 'Task Added', 'success');
+        }
+
+        function renderApp() {
+            // Stats
+            document.getElementById('stat-active').innerText = appData.stats.active;
+            document.getElementById('stat-review').innerText = appData.stats.pendingReview;
+            document.getElementById('stat-completed').innerText = appData.stats.completed;
+
+            // Tasks
+            const grid = document.getElementById('task-grid');
+            grid.innerHTML = '';
+            appData.tasks.forEach(t => {
+                if(t.Status === 'Done') return;
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs font-bold uppercase bg-blue-50 text-blue-600 px-2 py-1 rounded">${t.Priority}</span>
+                            <span class="text-xs text-slate-400">${t.Status}</span>
+                        </div>
+                        <h4 class="font-bold text-navy-800 mb-1">${t.TaskName}</h4>
+                        <p class="text-sm text-slate-500 line-clamp-2">${t.Description}</p>
+                    </div>`;
+            });
+        }
+
+        function router(view) {
+            ['dashboard-view', 'tasks-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(view + '-view').classList.remove('hidden');
+        }
+
+        function openModal() { document.getElementById('task-modal').classList.remove('hidden'); }
+        function toggleLoader(show) { document.getElementById('global-loader').classList.toggle('hidden', !show); }
+    </script>
+</body>
+</html>
