@@ -6,6 +6,24 @@ The frontend is automatically deployed to Vercel whenever you push to the `main`
 - **Domain**: `client.proventure.in`
 - **Repo**: `https://github.com/sayrahul/proventure-portal`
 
+### Domain Configuration (DNS)
+Based on your screenshots, your `client` subdomain is currently pointing to an old IP (`216.198.79.1`). You need to update this to point to Vercel.
+
+**Steps to Configure DNS:**
+1.  Log in to your DNS provider (where you took the screenshot).
+2.  Find the **A Record** for `client`.
+3.  **Edit** this record:
+    - **Type**: `A`
+    - **Name**: `client`
+    - **Value**: `76.76.21.21` (Vercel's IP)
+    - **TTL**: Auto or 3600
+4.  Alternatively, you can use a **CNAME Record**:
+    - **Type**: `CNAME`
+    - **Name**: `client`
+    - **Value**: `cname.vercel-dns.com`
+5.  Save the changes.
+6.  Wait for propagation (can take a few minutes to hours).
+
 ## Backend (Google Apps Script)
 The backend logic resides in `Code.js`. Since we are not using `clasp` for automated deployments, you must manually update the script in the Google Apps Script editor.
 

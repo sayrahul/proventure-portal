@@ -1354,9 +1354,15 @@
                      <p class="text-slate-500 text-sm mb-4">${user.email}</p>
                      <div class="flex gap-2">
                          <button class="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 transition-colors">Edit</button>
+                         <button class="px-4 py-2 rounded-lg bg-slate-100 text-red-500 text-xs font-bold hover:bg-red-50 hover:text-red-600 transition-colors">Remove</button>
+                     </div>
+                 </div>`;
+            });
+        }
+
         // Wrapp drag and drop initialization
         document.addEventListener('DOMContentLoaded', () => {
-             try {
+            try {
                 const dropZone = document.getElementById('drop-zone');
                 const fileInput = document.getElementById('file-input');
 
@@ -1401,11 +1407,11 @@
 
                 // Trigger file input click when clicking on drop zone
                 dropZone.addEventListener('click', () => {
-                   fileInput.click();
+                    fileInput.click();
                 });
-             } catch (e) {
-                 console.error("Drag Drop Init Error", e);
-             }
+            } catch (e) {
+                console.error("Drag Drop Init Error", e);
+            }
         });
 
         // Handle selected files from input
@@ -1418,23 +1424,23 @@
             const preview = document.getElementById('file-preview');
             if (!preview) return;
             preview.innerHTML = ''; // Clear previous previews
-            
+
             ([...files]).forEach(file => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onloadend = function() {
+                reader.onloadend = function () {
                     const div = document.createElement('div');
                     div.className = 'relative group w-20 h-20 rounded-lg overflow-hidden border border-slate-200';
-                    
+
                     // Check if image
                     if (file.type.startsWith('image/')) {
-                         div.innerHTML = `< img src = "${reader.result}" class="w-full h-full object-cover" > `;
+                        div.innerHTML = `<img src="${reader.result}" class="w-full h-full object-cover">`;
                     } else {
-                        div.innerHTML = `< div class="w-full h-full flex items-center justify-center bg-slate-50 text-slate-400" > <i class="fa-solid fa-file text-2xl"></i></div > `;
+                        div.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-slate-50 text-slate-400"><i class="fa-solid fa-file text-2xl"></i></div>`;
                     }
-                   
+
                     // Add remove button (optional, for visual completeness)
-                    div.innerHTML += `< button onclick = "this.parentElement.remove()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity" > <i class="fa-solid fa-xmark"></i></button >`;
+                    div.innerHTML += `<button onclick="this.parentElement.remove()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark"></i></button>`;
 
                     preview.appendChild(div);
                 }
