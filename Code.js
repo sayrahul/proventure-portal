@@ -104,6 +104,33 @@ function fetchAppData(userId, role) {
         tasks = allTasks;
     } else {
         projects = allProjects.filter(p => p.ClientID == userId);
+
+        // --- AUTO-PROVISION DEFAULT PROJECT ---
+        // If user has NO projects, create one automatically so they aren't blocked.
+        if (projects.length === 0) {
+            const projectsSheet = getSheet('Projects');
+            const newProjectId = 'PRJ-' + Math.floor(1000 + Math.random() * 9000); // Simple ID
+            const newProject = [
+                newProjectId,
+                'General Project',
+                userId,
+                new Date(),
+                '', // Deadline
+                'Active'
+            ];
+            projectsSheet.appendRow(newProject);
+
+            // Add to local list so it returns immediately
+            projects.push({
+                ProjectID: newProjectId,
+                ProjectName: 'General Project',
+                ClientID: userId,
+                StartDate: new Date(),
+                Deadline: '',
+                OverallStatus: 'Active'
+            });
+        }
+
         const myProjectIds = projects.map(p => p.ProjectID);
         tasks = allTasks.filter(t => myProjectIds.includes(t.ProjectID));
     }
