@@ -520,7 +520,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
         <div class="absolute inset-0 bg-navy-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
         <div
-            class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 p-8 relative pointer-events-auto">
+            class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 p-8 relative pointer-events-none">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i
                     class="fa-solid fa-xmark text-xl"></i></button>
 
@@ -1281,16 +1281,22 @@
 
         function openModal() {
             const m = document.getElementById('task-modal');
+            const content = m.querySelector('div.relative'); // Select the content div
+
             m.classList.remove('opacity-0', 'pointer-events-none');
-            m.firstElementChild.classList.remove('scale-95');
-            m.firstElementChild.classList.add('scale-100');
+
+            content.classList.remove('scale-95', 'pointer-events-none');
+            content.classList.add('scale-100', 'pointer-events-auto');
         }
 
         function closeModal() {
             const m = document.getElementById('task-modal');
+            const content = m.querySelector('div.relative'); // Select the content div
+
             m.classList.add('opacity-0', 'pointer-events-none');
-            m.firstElementChild.classList.add('scale-95');
-            m.firstElementChild.classList.remove('scale-100');
+
+            content.classList.add('scale-95', 'pointer-events-none');
+            content.classList.remove('scale-100', 'pointer-events-auto');
         }
 
         function toggleGlobalLoader(show) {
