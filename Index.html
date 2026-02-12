@@ -1,113 +1,881 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proventure Connect</title>
+    <title>Proventure Connect | Client Portal</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <!-- Google Fonts: Inter + Outfit -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SortableJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <!-- QuillJS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { navy: { 800: '#0f172a', 900: '#020617' }, electric: '#3b82f6' } } }
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a', // Main Dark
+                            950: '#020617', // Deepest
+                        },
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb', // Electric Blue
+                            700: '#1d4ed8',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'xl-soft': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)',
+                        'glow': '0 0 20px rgba(59, 130, 246, 0.3)'
+                    }
+                }
+            }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #334155; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body {
+            background-color: #f8fafc;
+            /* Slate 50 */
+            color: #334155;
+            /* Slate 700 */
+        }
+
+        .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.98) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .animate-enter {
+            animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Glass Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden bg-slate-100">
 
-    <script>
-        // *** PASTE YOUR GOOGLE SCRIPT URL HERE ***
-        const API_URL = "https://script.google.com/macros/s/AKfycbx08e8q162tLv2YLmvGOJP9pcJmuAu-wVnJRF0SLYY_sUKq8F9cUguBxgc0l3drm7uX/exec"; 
-    </script>
+<body class="antialiased selection:bg-electric-500 selection:text-white">
 
-    <div id="global-loader" class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900 text-white hidden">
-        <div class="text-center"><div class="loader mx-auto mb-4"></div><p class="animate-pulse tracking-widest text-sm">PROVENTURE</p></div>
+    <!-- GLOBAL LOADER -->
+    <div id="global-loader"
+        class="fixed inset-0 z-[100] bg-navy-900 flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="relative">
+            <div class="w-16 h-16 border-t-4 border-b-4 border-electric-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center font-bold text-white text-xs tracking-wider">
+                PV</div>
+        </div>
+        <p class="text-slate-400 mt-4 text-sm tracking-widest uppercase animate-pulse">Initializing</p>
     </div>
 
-    <section id="login-screen" class="h-full w-full flex items-center justify-center bg-navy-900 absolute top-0 left-0 z-40">
-        <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4">
-            <h1 class="text-3xl font-bold text-navy-800 text-center mb-8">Proventure<span class="text-electric">.</span></h1>
-            <form onsubmit="handleLogin(event)" class="space-y-5">
-                <input type="email" id="email" class="w-full px-4 py-3 rounded-lg bg-slate-50 border" placeholder="Email" required>
-                <input type="password" id="password" class="w-full px-4 py-3 rounded-lg bg-slate-50 border" placeholder="Password" required>
-                <button type="submit" class="w-full bg-navy-800 hover:bg-electric text-white font-semibold py-3 rounded-lg transition">Login</button>
-            </form>
+    <!-- NOTIFICATIONS -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+    <!-- === LOGIN SCREEN === -->
+    <section id="login-view"
+        class="h-screen w-full flex items-center justify-center bg-navy-950 relative overflow-hidden">
+        <!-- Abstract Background -->
+        <div class="absolute inset-0 z-0">
+            <div
+                class="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20">
+            </div>
+            <div
+                class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary-600/20 rounded-full blur-[120px]">
+            </div>
+            <div
+                class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px]">
+            </div>
+        </div>
+
+        <div class="w-full max-w-md p-8 relative z-10 mx-4">
+            <div class="bg-navy-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+                <div class="text-center mb-10">
+                    <div
+                        class="inline-flex items-center justify-center mb-5 hover:scale-105 transition-transform duration-300">
+                        <img src="logo.png" alt="Proventure Logo"
+                            class="h-20 w-auto drop-shadow-2xl filter brightness-110">
+                    </div>
+                    <h1 class="text-3xl font-display font-bold text-white tracking-tight mb-2">Proventure Connect</h1>
+                    <p class="text-slate-400 text-sm">Secure Client Access Portal</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-5">
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i
+                                class="fa-regular fa-envelope text-slate-500 group-focus-within:text-primary-500 transition-colors"></i>
+                        </div>
+                        <input type="email" id="email"
+                            class="w-full bg-navy-950/50 border border-slate-700/50 text-white rounded-xl px-11 py-3.5 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all placeholder-slate-600 text-sm"
+                            placeholder="name@company.com" required>
+                    </div>
+
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i
+                                class="fa-solid fa-lock text-slate-500 group-focus-within:text-primary-500 transition-colors"></i>
+                        </div>
+                        <input type="password" id="password"
+                            class="w-full bg-navy-950/50 border border-slate-700/50 text-white rounded-xl px-11 py-3.5 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all placeholder-slate-600 text-sm"
+                            placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-primary-600 hover:bg-primary-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-primary-600/20 transition-all transform active:scale-[0.98] mt-2 text-sm tracking-wide">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-white/5 text-center">
+                    <p class="text-xs text-slate-500">Protected by <span class="text-slate-400 font-medium">Enterprise
+                            Grade Security</span></p>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section id="app-container" class="h-full w-full flex hidden">
-        <aside class="w-64 bg-navy-900 text-white flex flex-col p-4">
-            <div class="text-xl font-bold mb-8 flex items-center gap-2"><i class="fa-solid fa-cube text-electric"></i> Proventure</div>
-            <nav class="space-y-2 flex-1">
-                <button onclick="router('dashboard')" class="w-full text-left p-3 hover:bg-white/10 rounded-lg">Dashboard</button>
-                <button onclick="router('tasks')" class="w-full text-left p-3 hover:bg-white/10 rounded-lg">Tasks</button>
+    <!-- === DASHBOARD LAYOUT === -->
+    <div id="app-layout" class="flex h-screen w-full hidden">
+
+        <!-- SIDEBAR -->
+        <aside
+            class="w-64 bg-navy-950/95 border-r border-white/5 flex flex-col transition-all duration-300 z-20 backdrop-blur-md">
+            <div class="h-20 flex items-center px-6 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" class="h-10 w-auto" alt="Logo">
+                    <span class="text-lg font-display font-bold text-white tracking-tight">Proventure</span>
+                </div>
+            </div>
+
+            <div class="p-4 mb-2">
+                <div class="bg-navy-900/50 rounded-xl p-3 border border-white/5 flex items-center gap-3">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random"
+                        class="w-9 h-9 rounded-lg object-cover ring-2 ring-navy-800">
+                    <div class="overflow-hidden">
+                        <p id="user-name" class="text-sm font-semibold text-white truncate">Loading...</p>
+                        <p id="user-role" class="text-[10px] text-primary-500 uppercase font-bold tracking-wider">Guest
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-3 space-y-1 overflow-y-auto mt-2">
+                <button onclick="router('dashboard')"
+                    class="nav-btn group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all active-nav">
+                    <i
+                        class="fa-solid fa-chart-pie w-5 text-center text-sm transition-colors group-hover:text-primary-400"></i>
+                    <span class="font-medium text-sm">Dashboard</span>
+                </button>
+                <button onclick="router('tasks')"
+                    class="nav-btn group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <i
+                        class="fa-solid fa-list-check w-5 text-center text-sm transition-colors group-hover:text-primary-400"></i>
+                    <span class="font-medium text-sm">My Tasks</span>
+                    <span id="nav-badge"
+                        class="ml-auto bg-primary-600 text-white py-0.5 px-2 rounded-md text-[10px] font-bold hidden shadow-sm">0</span>
+                </button>
+                <button onclick="router('history')"
+                    class="nav-btn group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <i
+                        class="fa-solid fa-clock-rotate-left w-5 text-center text-sm transition-colors group-hover:text-primary-400"></i>
+                    <span class="font-medium text-sm">History</span>
+                </button>
+
+                <!-- Users (Admin) -->
+                <button onclick="router('users')" id="nav-users"
+                    class="nav-btn group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all hidden">
+                    <i
+                        class="fa-solid fa-users w-5 text-center text-sm transition-colors group-hover:text-primary-400"></i>
+                    <span class="font-medium text-sm">Users</span>
+                </button>
             </nav>
-            <button onclick="location.reload()" class="p-3 hover:text-red-400 text-left">Logout</button>
+
+            <div class="p-4 border-t border-white/5">
+                <button onclick="logout()"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all group">
+                    <i
+                        class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-sm group-hover:translate-x-0.5 transition-transform"></i>
+                    <span class="font-medium text-sm">Sign Out</span>
+                </button>
+            </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto bg-slate-100 p-8 relative">
-            <div id="dashboard-view" class="max-w-6xl mx-auto space-y-6">
-                <h2 class="text-2xl font-bold text-navy-800">Overview</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-electric">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Active</p>
-                        <h3 id="stat-active" class="text-3xl font-bold text-navy-800">0</h3>
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col relative overflow-hidden bg-slate-50">
+            <!-- Header -->
+            <header
+                class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 z-10 sticky top-0 transition-colors">
+                <h2 id="page-title" class="text-lg font-display font-semibold text-navy-900">Dashboard
+                </h2>
+                <div class="flex items-center gap-4">
+                    <!-- Notifications -->
+                    <div class="relative group">
+                        <button
+                            class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-primary-600 transition-colors relative">
+                            <i class="fa-regular fa-bell"></i>
+                            <span
+                                class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+                        <!-- Dropdown -->
+                        <div
+                            class="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 hidden group-hover:block p-2 animate-enter z-20">
+                            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
+                                Notifications</h5>
+                            <div class="space-y-1">
+                                <a href="#" class="block px-3 py-2 hover:bg-slate-50 rounded-lg text-sm text-slate-600">
+                                    <span class="font-bold text-navy-900">Rahul</span> commented on
+                                    <span class="text-primary-500">Task #102</span>
+                                </a>
+                                <a href="#" class="block px-3 py-2 hover:bg-slate-50 rounded-lg text-sm text-slate-600">
+                                    <span class="font-bold text-navy-900">System</span> Deployment
+                                    successful
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Review</p>
-                        <h3 id="stat-review" class="text-3xl font-bold text-navy-800">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Completed</p>
-                        <h3 id="stat-completed" class="text-3xl font-bold text-navy-800">0</h3>
-                    </div>
-                </div>
-            </div>
 
-            <div id="tasks-view" class="max-w-6xl mx-auto hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-navy-800">Tasks</h2>
-                    <button onclick="openModal()" class="bg-electric text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">New Task</button>
+                    <span id="current-date"
+                        class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">...</span>
                 </div>
-                <div id="task-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <div id="content-area" class="flex-1 overflow-y-auto p-8 scroll-smooth relative">
+
+                <!-- SKELETON LOADER -->
+                <div id="skeleton-loader" class="space-y-8 animate-pulse">
+                    <!-- Banner Skeleton -->
+                    <div class="w-full h-48 bg-slate-200/70 rounded-2xl"></div>
+                    <!-- Stats Skeleton -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="h-32 bg-slate-200/70 rounded-xl"></div>
+                        <div class="h-32 bg-slate-200/70 rounded-xl"></div>
+                        <div class="h-32 bg-slate-200/70 rounded-xl"></div>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: DASHBOARD -->
+                <div id="dashboard-view" class="view-section hidden animate-enter space-y-8">
+                    <!-- Welcome Banner -->
+                    <div class="w-full bg-navy-950 rounded-2xl p-8 relative overflow-hidden shadow-xl text-white">
+                        <div
+                            class="absolute right-0 top-0 w-80 h-full bg-white/5 opacity-20 skew-x-[-20deg] mr-24 pointer-events-none">
+                        </div>
+                        <div
+                            class="absolute -right-20 -top-20 w-80 h-80 bg-primary-600/30 rounded-full blur-[80px] pointer-events-none">
+                        </div>
+
+                        <div class="relative z-10">
+                            <h3 id="welcome-msg" class="text-2xl font-display font-bold mb-2">Welcome back!</h3>
+                            <p class="text-slate-300 opacity-90 max-w-lg text-sm">You have <span id="pending-count-msg"
+                                    class="text-primary-400 font-bold">0 items</span> requiring your attention today.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Stat 1 -->
+                        <div
+                            class="bg-white rounded-xl p-6 shadow-soft border border-slate-100 group hover:border-primary-100 transition-colors">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <i class="fa-solid fa-layer-group text-lg"></i>
+                                </div>
+                                <span
+                                    class="bg-green-50 text-green-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">On
+                                    Track</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <h4 class="text-3xl font-display font-bold text-navy-900" id="stat-active">0</h4>
+                                <span class="text-sm text-slate-400">active tasks</span>
+                            </div>
+                        </div>
+
+                        <!-- Stat 2 -->
+                        <div
+                            class="bg-white rounded-xl p-6 shadow-soft border border-slate-100 group hover:border-primary-100 transition-colors">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600">
+                                    <i class="fa-solid fa-eye text-lg"></i>
+                                </div>
+                                <span
+                                    class="bg-orange-50 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Review</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <h4 class="text-3xl font-display font-bold text-navy-900" id="stat-review">0</h4>
+                                <span class="text-sm text-slate-400">pending approval</span>
+                            </div>
+                        </div>
+
+                        <!-- Stat 3 (Progress) -->
+                        <div
+                            class="bg-white rounded-xl p-6 shadow-soft border border-slate-100 flex items-center justify-between hover:border-primary-100 transition-colors">
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold uppercase mb-2">Overall Progress</p>
+                                <h4 class="text-3xl font-display font-bold text-navy-900" id="stat-rate">0%</h4>
+                            </div>
+                            <div class="w-16 h-16 relative">
+                                <canvas id="progressChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: TASKS -->
+                <div id="tasks-view" class="view-section hidden animate-enter space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="relative">
+                            <input type="text" id="task-search" placeholder="Search tasks..."
+                                class="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 text-sm w-full sm:w-64 shadow-sm transition-all">
+                            <i
+                                class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <div class="bg-white p-1 rounded-xl border border-slate-200 flex shadow-sm">
+                                <button onclick="switchTaskView('grid')" id="btn-view-grid"
+                                    class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-navy-900 shadow-sm transition-all"><i
+                                        class="fa-solid fa-border-all"></i> Grid</button>
+                                <button onclick="switchTaskView('kanban')" id="btn-view-kanban"
+                                    class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all"><i
+                                        class="fa-solid fa-columns"></i> Board</button>
+                            </div>
+                            <button onclick="openModal()"
+                                class="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-primary-600/20 transition-all flex items-center gap-2 hover:-translate-y-0.5">
+                                <i class="fa-solid fa-plus"></i> New Task
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GRID VIEW -->
+                    <div id="task-grid"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-10 transition-all duration-300">
+                        <!-- Dynamic Content -->
+                    </div>
+
+                    <!-- KANBAN VIEW -->
+                    <div id="task-kanban" class="hidden overflow-x-auto pb-6">
+                        <div class="flex gap-6 min-w-max px-4">
+                            <!-- Pending Column -->
+                            <div class="w-80 flex flex-col gap-4">
+                                <div class="flex items-center justify-between sticky top-0 bg-slate-50 z-10 py-2">
+                                    <h4 class="font-display font-bold text-navy-900 text-sm flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Pending <span
+                                            id="count-pending"
+                                            class="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                                    </h4>
+                                </div>
+                                <div id="kanban-pending" class="kanban-col space-y-3 min-h-[200px]"
+                                    data-status="Pending"></div>
+                            </div>
+
+                            <!-- In Progress Column -->
+                            <div class="w-80 flex flex-col gap-4">
+                                <div class="flex items-center justify-between sticky top-0 bg-slate-50 z-10 py-2">
+                                    <h4 class="font-display font-bold text-navy-900 text-sm flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> In Progress <span
+                                            id="count-inprogress"
+                                            class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                                    </h4>
+                                </div>
+                                <div id="kanban-inprogress" class="kanban-col space-y-3 min-h-[200px]"
+                                    data-status="In Progress"></div>
+                            </div>
+
+                            <!-- Review Column -->
+                            <div class="w-80 flex flex-col gap-4">
+                                <div class="flex items-center justify-between sticky top-0 bg-slate-50 z-10 py-2">
+                                    <h4 class="font-display font-bold text-navy-900 text-sm flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-orange-500"></span> Review <span
+                                            id="count-review"
+                                            class="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                                    </h4>
+                                </div>
+                                <div id="kanban-review" class="kanban-col space-y-3 min-h-[200px]" data-status="Review">
+                                </div>
+                            </div>
+
+                            <!-- Done Column -->
+                            <div class="w-80 flex flex-col gap-4">
+                                <div class="flex items-center justify-between sticky top-0 bg-slate-50 z-10 py-2">
+                                    <h4 class="font-display font-bold text-navy-900 text-sm flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-green-500"></span> Done <span
+                                            id="count-done"
+                                            class="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                                    </h4>
+                                </div>
+                                <div id="kanban-done" class="kanban-col space-y-3 min-h-[200px]" data-status="Done">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: HISTORY -->
+                <div id="history-view" class="view-section hidden animate-enter">
+                    <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
+                        <table class="w-full text-left text-sm">
+                            <thead
+                                class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4">Project</th>
+                                    <th class="px-6 py-4">Client</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Deadline</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body" class="divide-y divide-slate-100 text-slate-600">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: USERS (Admin) -->
+                <div id="users-view" class="view-section hidden animate-enter space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-display font-bold text-navy-900">User Management</h3>
+                        <button
+                            class="bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary-600/20 flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Add User
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="users-grid">
+                        <!-- Dynamic User Cards -->
+                    </div>
+                </div>
+
             </div>
         </main>
-    </section>
+    </div>
 
-    <div id="task-modal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-xl w-full max-w-lg">
-            <h3 class="text-lg font-bold mb-4">Add Task</h3>
-            <form onsubmit="submitTask(event)" class="space-y-4">
-                <input id="task-title" class="w-full p-2 border rounded" placeholder="Title" required>
-                <textarea id="task-desc" class="w-full p-2 border rounded" placeholder="Description"></textarea>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('task-modal').classList.add('hidden')" class="px-4 py-2">Cancel</button>
-                    <button type="submit" class="bg-navy-800 text-white px-4 py-2 rounded">Submit</button>
+    <!-- === MODALS === -->
+
+    <!-- === MODAL (ADD TASK) === -->
+    <div id="task-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-navy-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div
+            class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 p-8 relative pointer-events-auto">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i
+                    class="fa-solid fa-xmark text-xl"></i></button>
+
+            <h3 class="text-xl font-display font-bold text-navy-900 mb-6">Create New Task</h3>
+
+            <form onsubmit="submitTask(event)" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Task
+                            Title</label>
+                        <input type="text" id="task-title"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder="e.g. Redesign Homepage" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Due
+                            Date</label>
+                        <input type="date" id="task-date"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Priority</label>
+                        <select id="task-priority"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-600">
+                            <option value="High">High Priority</option>
+                            <option value="Medium" selected>Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Assign
+                            To</label>
+                        <select
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-600"
+                            disabled>
+                            <option>Auto-Assign (Admin)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quill Editor -->
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description</label>
+                    <div id="quill-editor" class="bg-white h-32 rounded-xl mb-4 text-slate-700"></div>
+                    <input type="hidden" id="task-desc">
+                </div>
+
+                <!-- File Upload -->
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Attachments</label>
+                    <div id="drop-zone"
+                        class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-primary-500 transition-colors cursor-pointer bg-slate-50 group">
+                        <i
+                            class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 group-hover:text-primary-500 mb-2 transition-colors"></i>
+                        <p class="text-sm text-slate-500">Drag files here or <span
+                                class="text-primary-500 font-bold">browse</span></p>
+                        <input type="file" id="file-input" class="hidden" multiple onchange="handleFiles(this)">
+                    </div>
+                    <div id="file-preview" class="flex gap-2 mt-2"></div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()"
+                        class="px-6 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 transition-colors">Cancel</button>
+                    <button type="submit"
+                        class="px-6 py-2.5 rounded-xl text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-600/20 transition-all transform active:scale-[0.98]">Create
+                        Task</button>
                 </div>
             </form>
         </div>
     </div>
+    <!-- CHAT MODAL -->
+    <div id="chat-modal"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-navy-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+        <div
+            class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col h-[500px]">
+            <!-- Chat Header -->
+            <div class="bg-navy-900 p-4 flex justify-between items-center text-white">
+                <div>
+                    <h3 class="font-bold text-sm">Task Instructions</h3>
+                    <p id="chat-task-id" class="text-[10px] text-slate-400">TSK-101</p>
+                </div>
+                <button onclick="closeChat()" class="text-slate-400 hover:text-white transition-colors"><i
+                        class="fa-solid fa-times"></i></button>
+            </div>
 
+            <!-- Messages Area -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+                <!-- Dynamic Messages -->
+            </div>
+
+            <!-- Input Area -->
+            <form onsubmit="sendComment(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
+                <input id="chat-input" type="text"
+                    class="flex-1 px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-electric-500 text-sm"
+                    placeholder="Type instruction..." required>
+                <button type="submit"
+                    class="bg-electric-500 hover:bg-electric-600 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-electric-500/20">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
     <script>
-        let currentUser = null;
-        let appData = {};
+        // CONFIGURATION
+        const CONFIG = {
+            // *** REPLACE WITH YOUR DEPLOYED SCRIPT ID ***
+            API_URL: "https://script.google.com/macros/s/AKfycbx08e8q162tLv2YLmvGOJP9pcJmuAu-wVnJRF0SLYY_sUKq8F9cUguBxgc0l3drm7uX/exec",
+            IS_PREVIEW: true // Set to false to use real Google Sheet Backend
+        };
 
-        async function apiCall(params, method = 'GET', body = null) {
-            let url = `${API_URL}?${new URLSearchParams(params)}`;
+        // --- MOCK DATA FOR PREVIEW MODE ---
+        const MOCK_DB = {
+            user: { UserID: 'USR-001', Name: 'Rahul Say', Email: 'admin@proventure.com', Role: 'Admin', CompanyLogo_URL: '' },
+            projects: [
+                { ProjectID: 'PRJ-01', ProjectName: 'Website Redesign', ClientID: 'USR-001', StartDate: '2023-01-01', Deadline: '2023-02-01', OverallStatus: 'In Progress' }
+            ],
+            tasks: [
+                { TaskID: 'TSK-101', ProjectID: 'PRJ-01', TaskName: 'Design Homepage', Description: 'Create high-fidelity mockups.', Status: 'Done', Priority: 'High', Assets_Link: '#', DueDate: '2024-03-01', CreatedBy: 'USR-001' },
+                { TaskID: 'TSK-102', ProjectID: 'PRJ-01', TaskName: 'Setup React Repo', Description: 'Initialize project.', Status: 'In Progress', Priority: 'Medium', Assets_Link: '', DueDate: '2024-03-05', CreatedBy: 'USR-001' },
+                { TaskID: 'TSK-103', ProjectID: 'PRJ-01', TaskName: 'API Integration', Description: 'Connect frontend to Google Sheets.', Status: 'Pending', Priority: 'High', Assets_Link: '', DueDate: '2024-03-10', CreatedBy: 'USR-001' }
+            ],
+            comments: [
+                { CommentID: 'CMT-1', TaskID: 'TSK-101', Content: 'Please use the blue palette.', AuthorID: 'USR-001', Timestamp: '2024-02-12T10:00:00Z' },
+                { CommentID: 'CMT-2', TaskID: 'TSK-101', Content: 'Noted.', AuthorID: 'USR-002', Timestamp: '2024-02-12T10:05:00Z' }
+            ]
+        };
+
+        // STATE
+        let currentUser = null;
+        let appData = { tasks: [], projects: [], stats: {} };
+        let progressChartInstance = null;
+
+        // INIT
+        window.onload = () => {
+            try {
+                const dateEl = document.getElementById('current-date');
+                if (dateEl) {
+                    dateEl.innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                }
+
+                // Check local session (optional, for persistent login)
+                const saved = localStorage.getItem('proventure_user');
+                if (saved && saved !== 'undefined') {
+                    try {
+                        currentUser = JSON.parse(saved);
+                        initApp();
+                    } catch (e) {
+                        console.error("Session parse error", e);
+                        localStorage.removeItem('proventure_user');
+                        toggleGlobalLoader(false);
+                    }
+                } else {
+                    toggleGlobalLoader(false);
+                }
+
+                if (CONFIG.IS_PREVIEW) {
+                    console.log("⚠️ PREVIEW MODE ACTIVE: Using Mock Data");
+                    showToast("Preview Mode: Using Mock Data", "success");
+                }
+            } catch (err) {
+                console.error("Window Load Error:", err);
+                // Force loader hide if error
+                setTimeout(() => toggleGlobalLoader(false), 500);
+            }
+        };
+
+        function mockApiHandler(params, body) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const action = params.action || body.action;
+                    console.log(`[MOCK API] Action: ${action}`, params || body);
+
+                    if (action === 'login') {
+                        resolve(MOCK_DB.user);
+                    } else if (action === 'getData') {
+                        const tasks = MOCK_DB.tasks;
+                        resolve({
+                            projects: MOCK_DB.projects,
+                            tasks: tasks,
+                            comments: MOCK_DB.comments,
+                            stats: {
+                                active: tasks.filter(t => t.Status !== 'Done').length,
+                                pendingReview: tasks.filter(t => t.Status === 'Review').length,
+                                completed: tasks.filter(t => t.Status === 'Done').length,
+                                total: tasks.length
+                            }
+                        });
+                    } else if (action === 'addTask') {
+                        const newTask = { ...body.payload, TaskID: 'TSK-' + Date.now(), Status: 'Pending' };
+                        MOCK_DB.tasks.unshift(newTask);
+                        resolve({ status: 'success' });
+                    } else if (action === 'addComment') {
+                        MOCK_DB.comments.push({
+                            CommentID: 'CMT-' + Date.now(),
+                            TaskID: body.payload.taskId,
+                            Content: body.payload.content,
+                            AuthorID: body.payload.authorId,
+                            Timestamp: new Date().toISOString()
+                        });
+                        resolve({ status: 'success' });
+                    } else if (action === 'updateStatus') {
+                        const t = MOCK_DB.tasks.find(t => t.TaskID === body.taskId);
+                        if (t) t.Status = body.newStatus;
+                        resolve({ status: 'success' });
+                    } else if (action === 'deleteTask') {
+                        MOCK_DB.tasks = MOCK_DB.tasks.filter(t => t.TaskID !== body.taskId);
+                        resolve({ status: 'success' });
+                    } else {
+                        resolve({ error: 'Unknown Action' });
+                    }
+                }, 800); // Fake network delay
+            });
+        }
+
+        // --- AUTHENTICATION ---
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            toggleGlobalLoader(true);
+
+            try {
+                const res = await callAPI({ action: 'login', email, password });
+                if (res.error) throw new Error(res.error);
+
+                currentUser = res;
+                localStorage.setItem('proventure_user', JSON.stringify(currentUser));
+                initApp();
+
+            } catch (err) {
+                showToast(err.message || 'Login failed', 'error');
+                toggleGlobalLoader(false);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('proventure_user');
+            location.reload();
+        }
+
+        function initApp() {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('app-layout').classList.remove('hidden');
+
+            // Setup User Profile
+            document.getElementById('user-name').innerText = currentUser.Name || 'User';
+            document.getElementById('user-role').innerText = currentUser.Role || 'Client';
+            document.getElementById('user-avatar').src = currentUser.CompanyLogo_URL || `https://ui-avatars.com/api/?name=${currentUser.Name}&background=0f172a&color=fff`;
+            document.getElementById('welcome-msg').innerText = `Good Morning, ${currentUser.Name.split(' ')[0]}`;
+
+            fetchData();
+        }
+
+        // --- DATA FETCHING ---
+        async function fetchData() {
+            // Show Skeleton / Hide Views if first load
+            if (!appData.user) {
+                document.getElementById('skeleton-loader').classList.remove('hidden');
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            }
+
+            try {
+                // 1. Get User
+                if (!currentUser) {
+                    // Assuming callAPI is updated to handle `body` for GET or this is a specific case
+                    currentUser = await callAPI({ action: 'login', email: 'admin@proventure.com' }); // Auto-login for demo
+                }
+
+                // 2. Get Data
+                const data = await callAPI({ action: 'getData', userId: currentUser.UserID, role: currentUser.Role });
+                appData = data;
+
+                // Hide Skeleton
+                document.getElementById('skeleton-loader').classList.add('hidden');
+
+                // Render
+                renderDashboard();
+                renderTasks();
+                renderHistory();
+
+                // Show current view (assuming a router function exists or will be added)
+                // router(currentRoute); // This line is commented out as router and currentRoute are not defined in the provided context.
+
+            } catch (error) {
+                console.error(error);
+                showToast('Failed to load data', 'error');
+            } finally {
+                toggleGlobalLoader(false);
+            }
+        }
+
+        // --- UTILS ---
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const colors = type === 'success' ? 'bg-navy-900 text-white' : 'bg-red-500 text-white';
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+
+            toast.className = `${colors} px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 transform translate-x-full transition-all duration-300 min-w-[300px] z-50`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="text-sm font-medium">${msg}</span>`;
+
+            container.appendChild(toast);
+
+            // Animate In
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+
+            // Animate Out
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function callAPI(params, method = 'GET', body = null) {
+            // Determine whether params is the data object or just parameters
+            // This handles the inconsistency where sometimes we pass (data, method, params) and sometimes (params, method, body)
+            let finalParams = params;
+            let finalBody = body;
+
+            // If the first argument has 'userId' or 'action' it's likely parameters
+            if (params && (params.userId || params.action)) {
+                finalParams = params;
+            }
+
+            let url = `${CONFIG.API_URL}`;
+
+            // For GAS, we often just use GET or POST directly
+            // Since user code manages params on GET and body on POST
+
             let options = { method: method };
-            
+
+            if (method === 'GET') {
+                const qs = new URLSearchParams(params).toString();
+                url += `?${qs}`;
+            } else if (method === 'POST') {
+                // To handle CORS with GAS, we often use no-cors or follow redirects
+                // User code: JSON.parse(e.postData.contents)
+                options.body = JSON.stringify(body);
+                // Standard fetch for GAS Web App exec url
+            }
+
+            // Using standard fetch. Note: standard fetch to GAS script executed by 'exec' might need text/plain to avoid CORS preflight failing in some envs
+            // unless deployed correctly. We will assume standard text/plain hack.
             if (method === 'POST') {
-                url = API_URL; // POST uses body, not params
-                options.body = JSON.stringify(body); // Send raw JSON
-                // Crucial for GAS:
-                options.redirect = "follow";
                 options.headers = { "Content-Type": "text/plain;charset=utf-8" };
             }
 
@@ -116,88 +884,564 @@
             return json;
         }
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            toggleLoader(true);
-            try {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                
-                const data = await apiCall({ action: 'login', email, password });
-                
-                if(data.error) throw new Error(data.error);
-                
-                currentUser = data;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                fetchData();
-            } catch(err) {
-                Swal.fire('Error', err.message, 'error');
-                toggleLoader(false);
-            }
-        }
+        // --- RENDERING ---
+        function renderDashboard() {
+            // Text Stats
+            animateValue("stat-active", 0, appData.stats.active || 0, 1000);
+            animateValue("stat-review", 0, appData.stats.pendingReview || 0, 1000);
 
-        async function fetchData() {
-            try {
-                const data = await apiCall({ action: 'getData', userId: currentUser.UserID, role: currentUser.Role });
-                if(data.error) throw new Error(data.error);
-                
-                appData = data;
-                renderApp();
-                toggleLoader(false);
-            } catch(err) {
-                console.error(err);
-            }
-        }
+            const total = appData.stats.total || 1;
+            const completed = appData.stats.completed || 0;
+            const rate = Math.round((completed / total) * 100);
+            document.getElementById('stat-rate').innerText = `${rate}%`;
+            document.getElementById('nav-badge').innerText = appData.stats.active || 0;
 
-        async function submitTask(e) {
-            e.preventDefault();
-            toggleLoader(true);
-            const payload = {
-                ProjectID: appData.projects[0]?.ProjectID || 'PRJ-01', // Default to first project
-                TaskName: document.getElementById('task-title').value,
-                Description: document.getElementById('task-desc').value,
-                Priority: 'Medium',
-                CreatedBy: currentUser.UserID
-            };
+            // Progress Chart
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            if (progressChartInstance) progressChartInstance.destroy();
 
-            await apiCall({}, 'POST', { action: 'addTask', payload });
-            
-            document.getElementById('task-modal').classList.add('hidden');
-            fetchData(); // Refresh
-            Swal.fire('Success', 'Task Added', 'success');
-        }
-
-        function renderApp() {
-            // Stats
-            document.getElementById('stat-active').innerText = appData.stats.active;
-            document.getElementById('stat-review').innerText = appData.stats.pendingReview;
-            document.getElementById('stat-completed').innerText = appData.stats.completed;
-
-            // Tasks
-            const grid = document.getElementById('task-grid');
-            grid.innerHTML = '';
-            appData.tasks.forEach(t => {
-                if(t.Status === 'Done') return;
-                grid.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-xs font-bold uppercase bg-blue-50 text-blue-600 px-2 py-1 rounded">${t.Priority}</span>
-                            <span class="text-xs text-slate-400">${t.Status}</span>
-                        </div>
-                        <h4 class="font-bold text-navy-800 mb-1">${t.TaskName}</h4>
-                        <p class="text-sm text-slate-500 line-clamp-2">${t.Description}</p>
-                    </div>`;
+            progressChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Done', 'Left'],
+                    datasets: [{
+                        data: [rate, 100 - rate],
+                        backgroundColor: ['#22c55e', '#e2e8f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '75%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
             });
         }
 
-        function router(view) {
-            ['dashboard-view', 'tasks-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById(view + '-view').classList.remove('hidden');
+        function renderTasks() {
+            const grid = document.getElementById('task-grid');
+            grid.innerHTML = '';
+
+            const activeTasks = appData.tasks.filter(t => t.Status !== 'Done');
+
+            if (activeTasks.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-3"></i><p>All caught up!</p></div>`;
+                return;
+            }
+
+            activeTasks.forEach(task => {
+                const priorityConfig = {
+                    'High': { color: 'text-red-600 bg-red-50 border-red-100', dot: 'bg-red-500' },
+                    'Medium': { color: 'text-orange-600 bg-orange-50 border-orange-100', dot: 'bg-orange-500' },
+                    'Low': { color: 'text-blue-600 bg-blue-50 border-blue-100', dot: 'bg-blue-500' }
+                };
+                const pStyle = priorityConfig[task.Priority] || priorityConfig['Medium'];
+                // Dates
+                const dueDate = task.DueDate ? new Date(task.DueDate) : null;
+                const isOverdue = dueDate && dueDate < new Date() && task.Status !== 'Done';
+                const dateStr = dueDate ? dueDate.toLocaleDateString('en-US', { disable_year: 'numeric', month: 'short', day: 'numeric' }) : 'No Date';
+
+                let statusHtml = `<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600 tracking-wide">${task.Status}</span>`;
+                if (currentUser.Role === 'Admin') {
+                    statusHtml = `
+                    <select onchange="updateStatus('${task.TaskID}', this.value)" class="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase rounded px-2 py-1 focus:ring-1 focus:ring-primary-500 outline-none cursor-pointer">
+                        <option value="Pending" ${task.Status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="In Progress" ${task.Status === 'In Progress' ? 'selected' : ''}>Doing</option>
+                        <option value="Review" ${task.Status === 'Review' ? 'selected' : ''}>Review</option>
+                        <option value="Done" ${task.Status === 'Done' ? 'selected' : ''}>Done</option>
+                    </select>`;
+                } else if (task.Status === 'Review') {
+                    statusHtml = `<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-orange-100 text-orange-700 animate-pulse">Request Review</span>`;
+                }
+
+
+                grid.innerHTML += `
+                <div class="bg-white rounded-xl p-5 shadow-soft border border-slate-100 hover:shadow-xl-soft hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded border ${pStyle.color} text-[10px] font-bold uppercase tracking-wider">
+                           <span class="w-1.5 h-1.5 rounded-full ${pStyle.dot}"></span> ${task.Priority}
+                        </span>
+                        
+                         <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                             ${(currentUser.Role === 'Admin' || task.CreatedBy === currentUser.UserID) ?
+                        `<button onclick="deleteTask('${task.TaskID}')" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                        </div>
+                    </div>
+                    
+                    <h4 class="font-display font-bold text-navy-900 mb-2 leading-snug">${task.TaskName}</h4>
+                    <p class="text-sm text-slate-500 line-clamp-3 mb-6 flex-1">${task.Description || 'No description provided.'}</p>
+                    
+                    <div class="pt-4 border-t border-slate-50 flex items-center justify-between mt-auto">
+                        <div class="flex items-center gap-3">
+                             ${statusHtml} 
+                             <div class="flex items-center gap-1.5 text-xs font-medium ${isOverdue ? 'text-red-500' : 'text-slate-400'}">
+                                <i class="fa-regular fa-calendar ${isOverdue ? 'animate-bounce' : ''}"></i> ${dateStr}
+                             </div>
+                        </div>
+                        
+                        <button onclick="openChat('${task.TaskID}')" class="w-9 h-9 rounded-full bg-primary-50 text-base text-primary-600 hover:bg-primary-600 hover:text-white flex items-center justify-center transition-all shadow-sm">
+                            <i class="fa-regular fa-comment-dots"></i>
+                        </button>
+                    </div>
+                </div>`;
+            });
+
+            // Also update Kanban whenever Tasks are updated
+            renderKanban();
         }
 
-        function openModal() { document.getElementById('task-modal').classList.remove('hidden'); }
-        function toggleLoader(show) { document.getElementById('global-loader').classList.toggle('hidden', !show); }
+        let currentView = 'grid';
+        function switchTaskView(view) {
+            currentView = view;
+            const grid = document.getElementById('task-grid');
+            const kanban = document.getElementById('task-kanban');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnKanban = document.getElementById('btn-view-kanban');
+
+            if (view === 'grid') {
+                grid.classList.remove('hidden');
+                kanban.classList.add('hidden');
+                btnGrid.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-navy-900 shadow-sm transition-all";
+                btnKanban.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all";
+            } else {
+                grid.classList.add('hidden');
+                kanban.classList.remove('hidden');
+                btnKanban.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-navy-900 shadow-sm transition-all";
+                btnGrid.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all";
+                initSortable();
+            }
+        }
+
+        function renderKanban() {
+            const cols = {
+                'Pending': document.getElementById('kanban-pending'),
+                'In Progress': document.getElementById('kanban-inprogress'),
+                'Review': document.getElementById('kanban-review'),
+                'Done': document.getElementById('kanban-done')
+            };
+
+            // Clear cols
+            Object.values(cols).forEach(c => c.innerHTML = '');
+
+            // Counters
+            const counts = { 'Pending': 0, 'In Progress': 0, 'Review': 0, 'Done': 0 };
+
+            appData.tasks.forEach(task => {
+                const targetCol = cols[task.Status] || cols['Pending'];
+                counts[task.Status] = (counts[task.Status] || 0) + 1;
+
+                const priorityConfig = {
+                    'High': 'border-l-4 border-l-red-500',
+                    'Medium': 'border-l-4 border-l-orange-500',
+                    'Low': 'border-l-4 border-l-blue-500'
+                };
+
+                const card = `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md cursor-grab active:cursor-grabbing transition-all ${priorityConfig[task.Priority] || 'border-l-4 border-l-slate-300'}" data-id="${task.TaskID}">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${task.TaskID}</span>
+                        ${(currentUser.Role === 'Admin') ? '<i class="fa-solid fa-grip-lines text-slate-300"></i>' : ''}
+                    </div>
+                    <h5 class="font-bold text-navy-900 text-sm mb-1 line-clamp-2">${task.TaskName}</h5>
+                    <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                        <div class="flex -space-x-2">
+                             <div class="w-6 h-6 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">${task.CreatedBy.substring(0, 1)}</div>
+                        </div>
+                         <button onclick="openChat('${task.TaskID}')" class="text-slate-400 hover:text-primary-600 transition-colors"><i class="fa-regular fa-comment-dots"></i></button>
+                    </div>
+                </div>`;
+                targetCol.innerHTML += card;
+            });
+
+            // Update Counts
+            document.getElementById('count-pending').innerText = counts['Pending'];
+            document.getElementById('count-inprogress').innerText = counts['In Progress'];
+            document.getElementById('count-review').innerText = counts['Review'];
+            document.getElementById('count-done').innerText = counts['Done'];
+        }
+
+        let sortables = [];
+        function initSortable() {
+            if (sortables.length > 0) return; // Already init
+
+            const containers = document.querySelectorAll('.kanban-col');
+            containers.forEach(container => {
+                sortables.push(new Sortable(container, {
+                    group: 'kanban',
+                    animation: 150,
+                    ghostClass: 'bg-indigo-50',
+                    dragClass: 'opacity-50',
+                    delay: 0,
+                    forceFallback: true, // Fix for some browsers/environments
+                    fallbackOnBody: true,
+                    swapThreshold: 0.65,
+                    onEnd: function (evt) {
+                        const itemEl = evt.item;
+                        const newStatus = evt.to.getAttribute('data-status');
+                        const taskId = itemEl.getAttribute('data-id');
+
+                        // Optimistic UI Update
+                        const task = appData.tasks.find(t => t.TaskID === taskId);
+                        if (task && task.Status !== newStatus) {
+                            task.Status = newStatus; // Update local state immediately
+                            updateStatus(taskId, newStatus);
+                            renderTasks(); // Re-render grid to match
+                        }
+                    }
+                }));
+            });
+        }
+
+        // --- CHAT ACTIONS ---
+        function openChat(taskId) {
+            currentChatTaskId = taskId;
+            const modal = document.getElementById('chat-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+
+            document.getElementById('chat-task-id').innerText = taskId;
+            renderChatMessages();
+        }
+
+        function closeChat() {
+            const modal = document.getElementById('chat-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.add('scale-95');
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '';
+
+            const msgs = (appData.comments || []).filter(c => c.TaskID === currentChatTaskId);
+
+            if (msgs.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-slate-300 mt-10">No instructions yet.</div>`;
+                return;
+            }
+
+            msgs.forEach(msg => {
+                const isMe = msg.AuthorID === currentUser.UserID;
+                container.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="max-w-[80%] px-3 py-2 rounded-xl text-sm ${isMe ? 'bg-electric-500 text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none shadow-sm'}">
+                            ${msg.Content}
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-1">${new Date(msg.Timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>`;
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendComment(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            // Optimistic Update
+            input.value = '';
+            const tempComment = {
+                CommentID: 'TEMP', TaskID: currentChatTaskId, Content: content,
+                AuthorID: currentUser.UserID, Timestamp: new Date().toISOString()
+            };
+            if (!appData.comments) appData.comments = [];
+            appData.comments.push(tempComment);
+            renderChatMessages();
+
+            try {
+                await callAPI({}, 'POST', {
+                    action: 'addComment',
+                    payload: { taskId: currentChatTaskId, content, authorId: currentUser.UserID }
+                });
+                fetchData(); // Sync
+            } catch (err) {
+                showToast('Failed to send', 'error');
+            }
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+
+            const completedTasks = appData.tasks.filter(t => t.Status === 'Done');
+
+            if (completedTasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 opacity-50">No completed history yet.</td></tr>`;
+                return;
+            }
+
+            completedTasks.forEach(t => {
+                const tr = `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-navy-900">${t.TaskName}</div>
+                        <div class="text-xs text-slate-400">${t.ProjectID}</div>
+                    </td>
+                    <td class="px-6 py-4 text-xs font-mono">Today</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                            <i class="fa-solid fa-check-circle"></i> Done
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        ${t.Assets_Link ? `<a href="${t.Assets_Link}" target="_blank" class="text-electric-500 hover:text-electric-600 font-medium text-xs"><i class="fa-solid fa-download mr-1"></i> Assets</a>` : '<span class="text-slate-300 text-xs">-</span>'}
+                    </td>
+                </tr>`;
+                tbody.innerHTML += tr;
+            });
+        }
+
+        // --- ACTIONS ---
+        function submitTask(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+
+            // Get Quill Content
+            const descHtml = quill ? quill.root.innerHTML : document.getElementById('task-desc').value;
+
+            const payload = {
+                TaskName: document.getElementById('task-title').value,
+                DueDate: document.getElementById('task-date').value,
+                Priority: document.getElementById('task-priority').value,
+                Description: descHtml, // Send HTML
+                ProjectID: 'PRJ-01', // Hardcoded for now
+                CreatedBy: currentUser.UserID
+            };
+
+            callAPI(null, 'POST', { action: 'addTask', payload: payload }).then(res => {
+                closeModal();
+                fetchData();
+                showToast('Task created successfully');
+                btn.innerHTML = 'Create Task';
+                // Reset Form
+                e.target.reset();
+                if (quill) quill.setContents([]);
+                document.getElementById('file-preview').innerHTML = '';
+            }).catch(err => {
+                showToast('Failed to add task', 'error');
+            }).finally(() => {
+                btn.disabled = false;
+            });
+        }
+
+        async function updateStatus(id, status) {
+            if (!confirm('Mark this task as Completed?')) return;
+            try {
+                await callAPI({}, 'POST', { action: 'updateStatus', taskId: id, newStatus: status });
+                fetchData();
+                showToast('Task updated', 'success');
+            } catch (err) { showToast('Error updating task', 'error'); }
+        }
+
+        async function deleteTask(id) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "This cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0f172a',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await callAPI({}, 'POST', { action: 'deleteTask', taskId: id });
+                    fetchData();
+                    Swal.fire('Deleted!', 'Task has been removed.', 'success');
+                } catch (err) { showToast('Error deleting task', 'error'); }
+            }
+        }
+
+        // --- UI CORE ---
+        function router(viewName) {
+            // Update Nav State
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-white/5', 'text-white', 'shadow-inner');
+                b.classList.add('text-slate-400');
+            });
+            event.currentTarget.classList.add('bg-white/5', 'text-white');
+            event.currentTarget.classList.remove('text-slate-400');
+
+            // Update View
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+
+            // Update Header
+            const titles = { 'dashboard': 'Overview', 'tasks': 'Project Tasks', 'history': 'Project History', 'users': 'User Management' };
+            document.getElementById('page-title').innerText = titles[viewName];
+
+            if (viewName === 'users') {
+                renderUsers();
+            }
+        }
+
+        function openModal() {
+            const m = document.getElementById('task-modal');
+            m.classList.remove('opacity-0', 'pointer-events-none');
+            m.firstElementChild.classList.remove('scale-95');
+            m.firstElementChild.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const m = document.getElementById('task-modal');
+            m.classList.add('opacity-0', 'pointer-events-none');
+            m.firstElementChild.classList.add('scale-95');
+            m.firstElementChild.classList.remove('scale-100');
+        }
+
+        function toggleGlobalLoader(show) {
+            const l = document.getElementById('global-loader');
+            if (show) {
+                l.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                l.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            const colors = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const icon = type === 'success' ? 'fa-check' : 'fa-exclamation-circle';
+
+            el.className = `${colors} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] transform transition-all translate-x-full animate-fade-in`;
+            el.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="font-medium text-sm">${msg}</span>`;
+
+            container.appendChild(el);
+            setTimeout(() => el.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                el.classList.add('opacity-0', 'translate-x-[100%]');
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function renderUsers() {
+            const grid = document.getElementById('users-grid');
+            grid.innerHTML = '';
+
+            // Mock Users Data (since we don't have a users endpoint yet)
+            // In a real app, we would fetch this from the backend
+            const users = [
+                { id: 'USR-001', name: 'Rahul Say', role: 'Admin', email: 'admin@proventure.com', avatar: 'https://ui-avatars.com/api/?name=Rahul+Say&background=0f172a&color=fff' },
+                { id: 'USR-002', name: 'Jane Doe', role: 'Client', email: 'jane@client.com', avatar: 'https://ui-avatars.com/api/?name=Jane+Doe&background=random' },
+                { id: 'USR-003', name: 'John Smith', role: 'Manager', email: 'john@proventure.com', avatar: 'https://ui-avatars.com/api/?name=John+Smith&background=random' }
+            ];
+
+            users.forEach(user => {
+                grid.innerHTML += `
+                 <div class="bg-white rounded-xl p-6 shadow-soft border border-slate-100 flex flex-col items-center text-center hover:shadow-lg transition-all">
+                     <img src="${user.avatar}" class="w-20 h-20 rounded-full mb-4 shadow-md ring-4 ring-slate-50">
+                     <h4 class="font-display font-bold text-navy-900 text-lg">${user.name}</h4>
+                     <p class="text-xs font-bold uppercase tracking-wider text-primary-500 mb-2">${user.role}</p>
+                     <p class="text-slate-500 text-sm mb-4">${user.email}</p>
+                     <div class="flex gap-2">
+                         <button class="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 transition-colors">Edit</button>
+        // Wrapp drag and drop initialization
+        document.addEventListener('DOMContentLoaded', () => {
+             try {
+                const dropZone = document.getElementById('drop-zone');
+                const fileInput = document.getElementById('file-input');
+
+                if (!dropZone || !fileInput) return; // Exit if elements not found (e.g. not in view)
+
+                // Prevent default drag behaviors
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                    document.body.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                // Highlight drop zone when item is dragged over it
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight(e) {
+                    dropZone.classList.add('border-primary-500', 'bg-primary-50');
+                }
+
+                function unhighlight(e) {
+                    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+                }
+
+                // Handle dropped files
+                dropZone.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    handleFilesList(files);
+                }
+
+                // Trigger file input click when clicking on drop zone
+                dropZone.addEventListener('click', () => {
+                   fileInput.click();
+                });
+             } catch (e) {
+                 console.error("Drag Drop Init Error", e);
+             }
+        });
+
+        // Handle selected files from input
+        function handleFiles(input) {
+            const files = input.files;
+            handleFilesList(files);
+        }
+
+        function handleFilesList(files) {
+            const preview = document.getElementById('file-preview');
+            if (!preview) return;
+            preview.innerHTML = ''; // Clear previous previews
+            
+            ([...files]).forEach(file => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = function() {
+                    const div = document.createElement('div');
+                    div.className = 'relative group w-20 h-20 rounded-lg overflow-hidden border border-slate-200';
+                    
+                    // Check if image
+                    if (file.type.startsWith('image/')) {
+                         div.innerHTML = `< img src = "${reader.result}" class="w-full h-full object-cover" > `;
+                    } else {
+                        div.innerHTML = `< div class="w-full h-full flex items-center justify-center bg-slate-50 text-slate-400" > <i class="fa-solid fa-file text-2xl"></i></div > `;
+                    }
+                   
+                    // Add remove button (optional, for visual completeness)
+                    div.innerHTML += `< button onclick = "this.parentElement.remove()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity" > <i class="fa-solid fa-xmark"></i></button >`;
+
+                    preview.appendChild(div);
+                }
+            });
+        }
+
     </script>
 </body>
+
 </html>
