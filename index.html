@@ -425,6 +425,9 @@
                         <!-- Dynamic Content -->
                     </div>
 
+                    <!-- HISTORY SECTION IN TASKS VIEW -->
+                    <div id="task-history-section" class="pb-10"></div>
+
                     <!-- KANBAN VIEW -->
                     <div id="task-kanban" class="hidden overflow-x-auto pb-6">
                         <div class="flex gap-6 min-w-max px-4">
@@ -533,9 +536,10 @@
             <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i
                     class="fa-solid fa-xmark text-xl"></i></button>
 
-            <h3 class="text-xl font-display font-bold text-navy-900 mb-6">Create New Task</h3>
+            <h3 id="modal-title" class="text-xl font-display font-bold text-navy-900 mb-6">Create New Task</h3>
 
             <form onsubmit="submitTask(event)" class="space-y-6">
+                <input type="hidden" id="task-id-hidden">
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Task
@@ -994,12 +998,49 @@
                              </div>
                         </div>
                         
-                        <button onclick="openChat('${task.TaskID}')" class="w-9 h-9 rounded-full bg-primary-50 text-base text-primary-600 hover:bg-primary-600 hover:text-white flex items-center justify-center transition-all shadow-sm">
+                         <button onclick="openEditModal('${task.TaskID}')" class="w-9 h-9 rounded-full bg-slate-50 text-base text-slate-500 hover:bg-slate-200 hover:text-slate-700 flex items-center justify-center transition-all shadow-sm mr-2" title="Edit Task">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </button>
+                        <button onclick="openChat('${task.TaskID}')" class="w-9 h-9 rounded-full bg-primary-50 text-base text-primary-600 hover:bg-primary-600 hover:text-white flex items-center justify-center transition-all shadow-sm" title="Chat & Instructions">
                             <i class="fa-regular fa-comment-dots"></i>
                         </button>
                     </div>
                 </div>`;
             });
+
+            // Also render History below tasks (as per request)
+            const historyContainer = document.getElementById('task-history-section');
+            if (historyContainer) {
+                historyContainer.innerHTML = '';
+                // Filter completed tasks
+                const completed = appData.tasks.filter(t => t.Status === 'Done');
+                if (completed.length > 0) {
+                    historyContainer.innerHTML = `<h3 class="text-lg font-display font-bold text-navy-900 mt-10 mb-4">Completed History</h3>`;
+                    const table = document.createElement('div');
+                    table.className = "bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden";
+                    let rows = '';
+                    completed.forEach(t => {
+                        rows += `
+                        <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-navy-900">${t.TaskName}</div>
+                                <div class="text-xs text-slate-400">${t.TaskID}</div>
+                            </td>
+                             <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                                    <i class="fa-solid fa-check-circle"></i> Done
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="openEditModal('${t.TaskID}')" class="text-slate-400 hover:text-primary-600 transition-colors text-xs font-bold uppercase"><i class="fa-solid fa-pen"></i> Edit</button>
+                            </td>
+                        </tr>`;
+                    });
+
+                    table.innerHTML = `<table class="w-full text-left text-sm"><tbody class="divide-y divide-slate-100">${rows}</tbody></table>`;
+                    historyContainer.appendChild(table);
+                }
+            }
 
             // Also update Kanban whenever Tasks are updated
             renderKanban();
@@ -1248,7 +1289,18 @@
                     CreatedBy: currentUser.UserID
                 };
 
-                const res = await callAPI(null, 'POST', { action: 'addTask', payload: payload });
+                // Check if Edit or Create
+                const editingId = document.getElementById('task-id-hidden').value;
+                let action = 'addTask';
+
+                if (editingId) {
+                    action = 'editTask';
+                    payload.TaskID = editingId;
+                    delete payload.ProjectID; // Don't allow changing project
+                    delete payload.CreatedBy;
+                }
+
+                const res = await callAPI(null, 'POST', { action: action, payload: payload });
 
                 if (res.error) throw new Error(res.error);
 
@@ -1328,7 +1380,30 @@
             m.classList.remove('opacity-0', 'pointer-events-none');
 
             content.classList.remove('scale-95', 'pointer-events-none');
+            content.classList.remove('scale-95', 'pointer-events-none');
             content.classList.add('scale-100', 'pointer-events-auto');
+        }
+
+        function openEditModal(taskId) {
+            const task = appData.tasks.find(t => t.TaskID === taskId);
+            if (!task) return;
+
+            document.getElementById('modal-title').innerText = 'Edit Task';
+            document.getElementById('task-id-hidden').value = task.TaskID;
+            document.getElementById('task-title').value = task.TaskName;
+            document.getElementById('task-date').value = task.DueDate || '';
+            document.getElementById('task-priority').value = task.Priority || 'Medium';
+
+            const btn = document.querySelector('#task-modal button[type="submit"]');
+            btn.innerText = 'Update Task';
+
+            if (quill) {
+                quill.root.innerHTML = task.Description || '';
+            } else {
+                document.getElementById('task-desc').value = task.Description || '';
+            }
+
+            openModal();
         }
 
         function closeModal() {
