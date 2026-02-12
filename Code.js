@@ -63,6 +63,10 @@ function handleApiRequest(data) {
                 result = addComment(data.payload);
                 break;
 
+            case 'editTask':
+                result = editTask(data.payload);
+                break;
+
             default:
                 throw new Error("Unknown action: " + data.action);
         }
@@ -141,6 +145,29 @@ function addTask(payload) {
 
     sheet.appendRow(newRow);
     return { status: 'success', taskId: taskId };
+}
+
+function editTask(payload) {
+    const sheet = getSheet('Tasks');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0]; // Assuming headers are in first row
+
+    // Find row index
+    const rowIndex = data.findIndex(row => row[0] == payload.TaskID);
+    if (rowIndex === -1) throw new Error('Task not found');
+
+    // Map fields to update (excluding immutable ones like CreatedBy/TaskID)
+    // Columns (1-based index):
+    // 1: TaskID, 2: ProjectID, 3: TaskName, 4: Description, 5: Status, 6: Priority, 7: Assets, 8: DueDate
+
+    const row = rowIndex + 1;
+
+    if (payload.TaskName) sheet.getRange(row, 3).setValue(payload.TaskName);
+    if (payload.Description) sheet.getRange(row, 4).setValue(payload.Description);
+    if (payload.Priority) sheet.getRange(row, 6).setValue(payload.Priority);
+    if (payload.DueDate) sheet.getRange(row, 8).setValue(payload.DueDate);
+
+    return { status: 'success' };
 }
 
 function addComment(payload) {
