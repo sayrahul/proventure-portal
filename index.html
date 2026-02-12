@@ -1234,12 +1234,18 @@
 
                 if (!title) throw new Error("Task Title is required");
 
+                // Get valid ProjectID
+                let projectId = 'PRJ-01'; // Default Fallback
+                if (appData && appData.projects && appData.projects.length > 0) {
+                    projectId = appData.projects[0].ProjectID;
+                }
+
                 const payload = {
                     TaskName: title,
                     DueDate: document.getElementById('task-date').value,
                     Priority: document.getElementById('task-priority').value,
                     Description: descHtml,
-                    ProjectID: 'PRJ-01',
+                    ProjectID: projectId,
                     CreatedBy: currentUser.UserID
                 };
 
