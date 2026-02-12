@@ -960,17 +960,14 @@
                 const dateStr = dueDate ? dueDate.toLocaleDateString('en-US', { disable_year: 'numeric', month: 'short', day: 'numeric' }) : 'No Date';
 
                 let statusHtml = `<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600 tracking-wide">${task.Status}</span>`;
-                if (currentUser.Role === 'Admin') {
-                    statusHtml = `
-                    <select onchange="updateStatus('${task.TaskID}', this.value)" class="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase rounded px-2 py-1 focus:ring-1 focus:ring-primary-500 outline-none cursor-pointer">
-                        <option value="Pending" ${task.Status === 'Pending' ? 'selected' : ''}>Pending</option>
-                        <option value="In Progress" ${task.Status === 'In Progress' ? 'selected' : ''}>Doing</option>
-                        <option value="Review" ${task.Status === 'Review' ? 'selected' : ''}>Review</option>
-                        <option value="Done" ${task.Status === 'Done' ? 'selected' : ''}>Done</option>
-                    </select>`;
-                } else if (task.Status === 'Review') {
-                    statusHtml = `<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-orange-100 text-orange-700 animate-pulse">Request Review</span>`;
-                }
+                // Status Dropdown (Accessible to everyone)
+                statusHtml = `
+                <select onchange="updateStatus('${task.TaskID}', this.value)" class="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase rounded px-2 py-1 focus:ring-1 focus:ring-primary-500 outline-none cursor-pointer">
+                    <option value="Pending" ${task.Status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="In Progress" ${task.Status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="Review" ${task.Status === 'Review' ? 'selected' : ''}>Review</option>
+                    <option value="Done" ${task.Status === 'Done' ? 'selected' : ''}>Done</option>
+                </select>`;
 
 
                 grid.innerHTML += `
