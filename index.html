@@ -129,7 +129,7 @@
     </div>
 
     <!-- NOTIFICATIONS -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] space-y-2"></div>
 
     <!-- === LOGIN SCREEN === -->
     <section id="login-view"
@@ -282,14 +282,23 @@
                             <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
                                 Notifications</h5>
                             <div class="space-y-1">
-                                <a href="#" class="block px-3 py-2 hover:bg-slate-50 rounded-lg text-sm text-slate-600">
-                                    <span class="font-bold text-navy-900">Rahul</span> commented on
-                                    <span class="text-primary-500">Task #102</span>
-                                </a>
-                                <a href="#" class="block px-3 py-2 hover:bg-slate-50 rounded-lg text-sm text-slate-600">
-                                    <span class="font-bold text-navy-900">System</span> Deployment
-                                    successful
-                                </a>
+                                <div class="px-3 py-2 hover:bg-slate-50 rounded-lg flex justify-between group/notif">
+                                    <a href="#" class="block text-sm text-slate-600 flex-1">
+                                        <span class="font-bold text-navy-900">Rahul</span> commented on
+                                        <span class="text-primary-500">Task #102</span>
+                                    </a>
+                                    <button onclick="this.closest('.flex').remove()"
+                                        class="text-slate-300 hover:text-red-500 opacity-0 group-hover/notif:opacity-100 transition-opacity"><i
+                                            class="fa-solid fa-times"></i></button>
+                                </div>
+                                <div class="px-3 py-2 hover:bg-slate-50 rounded-lg flex justify-between group/notif">
+                                    <a href="#" class="block text-sm text-slate-600 flex-1">
+                                        <span class="font-bold text-navy-900">System</span> Deployment successful
+                                    </a>
+                                    <button onclick="this.closest('.flex').remove()"
+                                        class="text-slate-300 hover:text-red-500 opacity-0 group-hover/notif:opacity-100 transition-opacity"><i
+                                            class="fa-solid fa-times"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -573,20 +582,7 @@
                     <input type="hidden" id="task-desc">
                 </div>
 
-                <!-- File Upload -->
-                <div>
-                    <label
-                        class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Attachments</label>
-                    <div id="drop-zone"
-                        class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-primary-500 transition-colors cursor-pointer bg-slate-50 group">
-                        <i
-                            class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 group-hover:text-primary-500 mb-2 transition-colors"></i>
-                        <p class="text-sm text-slate-500">Drag files here or <span
-                                class="text-primary-500 font-bold">browse</span></p>
-                        <input type="file" id="file-input" class="hidden" multiple onchange="handleFiles(this)">
-                    </div>
-                    <div id="file-preview" class="flex gap-2 mt-2"></div>
-                </div>
+                <!-- Attachments Removed -->
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
                     <button type="button" onclick="closeModal()"
@@ -625,7 +621,7 @@
                     placeholder="Type instruction..." required>
                 <button type="submit"
                     class="bg-electric-500 hover:bg-electric-600 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-electric-500/20">
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
                 </button>
             </form>
         </div>
@@ -639,6 +635,8 @@
             API_URL: "https://script.google.com/macros/s/AKfycbwIiPSHSCfokNTNxk6mpHIhOBKJ1es4Z0IkwBEo1dC3HLdKHrRWuEr2p--DBUPyBRZS/exec",
             IS_PREVIEW: false // Set to false to use real Google Sheet Backend
         };
+
+        let quill; // Global Quill instance
 
         // --- MOCK DATA FOR PREVIEW MODE ---
         const MOCK_DB = {
@@ -779,9 +777,28 @@
             document.getElementById('user-name').innerText = currentUser.Name || 'User';
             document.getElementById('user-role').innerText = currentUser.Role || 'Client';
             document.getElementById('user-avatar').src = currentUser.CompanyLogo_URL || `https://ui-avatars.com/api/?name=${currentUser.Name}&background=0f172a&color=fff`;
-            document.getElementById('welcome-msg').innerText = `Good Morning, ${currentUser.Name.split(' ')[0]}`;
+
+            // Realtime Greeting
+            const hour = new Date().getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
+            else if (hour >= 17) greeting = 'Good Evening';
+
+            document.getElementById('welcome-msg').innerText = `${greeting}, ${currentUser.Name.split(' ')[0]}`;
 
             fetchData();
+
+            // Navigate to Tasks by default
+            router('tasks');
+
+            // Init Quill if not already
+            if (!quill) {
+                quill = new Quill('#quill-editor', {
+                    theme: 'snow',
+                    placeholder: 'Task description...',
+                    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }]] }
+                });
+            }
         }
 
         // --- DATA FETCHING ---
@@ -1041,7 +1058,10 @@
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md cursor-grab active:cursor-grabbing transition-all ${priorityConfig[task.Priority] || 'border-l-4 border-l-slate-300'}" data-id="${task.TaskID}">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${task.TaskID}</span>
-                        ${(currentUser.Role === 'Admin') ? '<i class="fa-solid fa-grip-lines text-slate-300"></i>' : ''}
+                        <div class="flex gap-2">
+                             ${(currentUser.Role === 'Admin') ? `<button onclick="deleteTask('${task.TaskID}')" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                             ${(currentUser.Role === 'Admin') ? '<i class="fa-solid fa-grip-lines text-slate-300"></i>' : ''}
+                        </div>
                     </div>
                     <h5 class="font-bold text-navy-900 text-sm mb-1 line-clamp-2">${task.TaskName}</h5>
                     <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
@@ -1219,7 +1239,7 @@
                 // Reset Form
                 e.target.reset();
                 if (quill) quill.setContents([]);
-                document.getElementById('file-preview').innerHTML = '';
+                // Attachments removed
             }).catch(err => {
                 showToast('Failed to add task', 'error');
             }).finally(() => {
@@ -1366,92 +1386,10 @@
             });
         }
 
-        // Wrapp drag and drop initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const dropZone = document.getElementById('drop-zone');
-                const fileInput = document.getElementById('file-input');
-
-                if (!dropZone || !fileInput) return; // Exit if elements not found (e.g. not in view)
-
-                // Prevent default drag behaviors
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, preventDefaults, false);
-                    document.body.addEventListener(eventName, preventDefaults, false);
-                });
-
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-
-                // Highlight drop zone when item is dragged over it
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, highlight, false);
-                });
-
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, unhighlight, false);
-                });
-
-                function highlight(e) {
-                    dropZone.classList.add('border-primary-500', 'bg-primary-50');
-                }
-
-                function unhighlight(e) {
-                    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
-                }
-
-                // Handle dropped files
-                dropZone.addEventListener('drop', handleDrop, false);
-
-                function handleDrop(e) {
-                    const dt = e.dataTransfer;
-                    const files = dt.files;
-                    handleFilesList(files);
-                }
-
-                // Trigger file input click when clicking on drop zone
-                dropZone.addEventListener('click', () => {
-                    fileInput.click();
-                });
-            } catch (e) {
-                console.error("Drag Drop Init Error", e);
-            }
-        });
-
-        // Handle selected files from input
-        function handleFiles(input) {
-            const files = input.files;
-            handleFilesList(files);
-        }
-
-        function handleFilesList(files) {
-            const preview = document.getElementById('file-preview');
-            if (!preview) return;
-            preview.innerHTML = ''; // Clear previous previews
-
-            ([...files]).forEach(file => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onloadend = function () {
-                    const div = document.createElement('div');
-                    div.className = 'relative group w-20 h-20 rounded-lg overflow-hidden border border-slate-200';
-
-                    // Check if image
-                    if (file.type.startsWith('image/')) {
-                        div.innerHTML = `<img src="${reader.result}" class="w-full h-full object-cover">`;
-                    } else {
-                        div.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-slate-50 text-slate-400"><i class="fa-solid fa-file text-2xl"></i></div>`;
-                    }
-
-                    // Add remove button (optional, for visual completeness)
-                    div.innerHTML += `<button onclick="this.parentElement.remove()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark"></i></button>`;
-
-                    preview.appendChild(div);
-                }
-            });
-        }
+        // Wrapp drag and drop initialization - REMOVED AS REQUESTED
+        // document.addEventListener('DOMContentLoaded', () => { ... });
+        // function handleFiles(input) { ... }
+        // function handleFilesList(files) { ... }
 
     </script>
 </body>
