@@ -1214,37 +1214,54 @@
         }
 
         // --- ACTIONS ---
-        function submitTask(e) {
+        async function submitTask(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+
+            if (!currentUser) {
+                Swal.fire('Error', 'You must be logged in to create a task.', 'error');
+                return;
+            }
+
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+            btn.disabled = true;
 
-            // Get Quill Content
-            const descHtml = quill ? quill.root.innerHTML : document.getElementById('task-desc').value;
+            try {
+                // Get Quill Content
+                const descHtml = quill ? quill.root.innerHTML : document.getElementById('task-desc').value;
+                const title = document.getElementById('task-title').value;
 
-            const payload = {
-                TaskName: document.getElementById('task-title').value,
-                DueDate: document.getElementById('task-date').value,
-                Priority: document.getElementById('task-priority').value,
-                Description: descHtml, // Send HTML
-                ProjectID: 'PRJ-01', // Hardcoded for now
-                CreatedBy: currentUser.UserID
-            };
+                if (!title) throw new Error("Task Title is required");
 
-            callAPI(null, 'POST', { action: 'addTask', payload: payload }).then(res => {
+                const payload = {
+                    TaskName: title,
+                    DueDate: document.getElementById('task-date').value,
+                    Priority: document.getElementById('task-priority').value,
+                    Description: descHtml,
+                    ProjectID: 'PRJ-01',
+                    CreatedBy: currentUser.UserID
+                };
+
+                const res = await callAPI(null, 'POST', { action: 'addTask', payload: payload });
+
+                if (res.error) throw new Error(res.error);
+
                 closeModal();
                 fetchData();
-                showToast('Task created successfully');
-                btn.innerHTML = 'Create Task';
+                Swal.fire({ icon: 'success', title: 'Task Created', timer: 1500, showConfirmButton: false });
+
                 // Reset Form
                 e.target.reset();
                 if (quill) quill.setContents([]);
-                // Attachments removed
-            }).catch(err => {
-                showToast('Failed to add task', 'error');
-            }).finally(() => {
+
+            } catch (err) {
+                console.error("Submit Task Error:", err);
+                Swal.fire('Failed to create task', err.message || 'Unknown error', 'error');
+            } finally {
+                btn.innerHTML = 'Create Task'; // Restore text
                 btn.disabled = false;
-            });
+            }
         }
 
         async function updateStatus(id, status) {
