@@ -1234,11 +1234,13 @@
 
                 if (!title) throw new Error("Task Title is required");
 
-                // Get valid ProjectID
-                let projectId = 'PRJ-01'; // Default Fallback
-                if (appData && appData.projects && appData.projects.length > 0) {
-                    projectId = appData.projects[0].ProjectID;
+                // Validation: User must have at least one project
+                if (!appData.projects || appData.projects.length === 0) {
+                    throw new Error("No projects assigned to this account. Please ask an Admin to add a Project for you in the database.");
                 }
+
+                // Auto-select first project
+                const projectId = appData.projects[0].ProjectID;
 
                 const payload = {
                     TaskName: title,
