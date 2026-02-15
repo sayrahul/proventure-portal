@@ -2,7 +2,15 @@ const ALBUM_URL = 'https://photos.app.goo.gl/PKbE1PDMfGqYrhsw8';
 
 function doGet(e) {
     const data = getAlbumData();
-    return ContentService.createTextOutput(JSON.stringify(data))
+    const json = JSON.stringify(data);
+    const callback = e.parameter.callback;
+
+    if (callback) {
+        return ContentService.createTextOutput(callback + '(' + json + ')')
+            .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+
+    return ContentService.createTextOutput(json)
         .setMimeType(ContentService.MimeType.JSON);
 }
 
