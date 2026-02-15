@@ -8,7 +8,6 @@ function doGet() {
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-
 function getAlbumData() {
     try {
         const response = UrlFetchApp.fetch(ALBUM_URL, {
@@ -24,60 +23,51 @@ function getAlbumData() {
 
         const photos = [];
         const videos = [];
-        const processed = new Set();
-        const videoUrls = new Set(); // To avoid adding videos as photos
+        const seenUrls = {}; // Use object for faster lookups
 
         // 1. Find Videos first
-        // Pattern: "https://video-downloads.googleusercontent.com/...",["https://lh3.googleusercontent.com/..."
-        // We capture the lh3 URL to use as the base for both thumbnail and video stream (=dv)
-        const videoRegex = /"(https:\/\/video-downloads\.googleusercontent\.com\/[^"]+)",\["(https:\/\/lh3\.googleusercontent\.com\/[^"]+)"/g;
+        // Pattern: "https://video-downloads.googleusercontent.com/...","https://lh3.googleusercontent.com/pw/..."
+        const videoPattern = /"https:\/\/video-downloads\.googleusercontent\.com\/[^"]+","(https:\/\/lh3\.googleusercontent\.com\/pw\/[^"]+)"/g;
 
         let vMatch;
-        while ((vMatch = videoRegex.exec(html)) !== null) {
-            const lh3Url = vMatch[2];
-
-            // Extract width/height if possible, or default
-            // complex to look ahead in regex, so we'll just set defaults or extracted later if we match the photo regex 
-            // Actually, let's just use the lh3 matched here.
-
-            if (!videoUrls.has(lh3Url)) {
+        while ((vMatch = videoPattern.exec(html)) !== null) {
+            const lh3Url = vMatch[1];
+            if (!seenUrls[lh3Url]) {
                 videos.push({
                     src: lh3Url + '=dv',      // Download Video stream
                     thumbnail: lh3Url + '=w500-h500-no',
-                    caption: 'Video',
+                    caption: '',
                     type: 'video'
                 });
-                videoUrls.add(lh3Url);
-                processed.add(lh3Url);
+                seenUrls[lh3Url] = true;
             }
         }
 
-        // 2. Find Photos (and remaining items)
-        // Matches: [ "https://lh3.googleusercontent.com/...", width, height
-        const itemRegex = /\["(https:\/\/lh3\.googleusercontent\.com\/[^"]+)",(\d+),(\d+)/g;
-        let match;
+        // 2. Find ALL Photos
+        // Matches: ["https://lh3.googleusercontent.com/pw/...",width,height
+        const itemPattern = /\["(https:\/\/lh3\.googleusercontent\.com\/pw\/[^"]+)",(\d+),(\d+)/g;
 
-        while ((match = itemRegex.exec(html)) !== null) {
+        let match;
+        while ((match = itemPattern.exec(html)) !== null) {
             const url = match[1];
             const width = parseInt(match[2]);
             const height = parseInt(match[3]);
 
-            // Filter out small icons/profile pics (usually < 100px)
-            if (width > 200 && height > 200) {
-                // Only add if NOT already identified as a video
-                if (!videoUrls.has(url) && !processed.has(url)) {
-                    photos.push({
-                        src: url + '=w1920-h1080-no',      // 1080p
-                        thumbnail: url + '=w500-h500-no',   // 500px thumbnail
-                        w: width,
-                        h: height,
-                        caption: '',
-                        type: 'photo'
-                    });
-                    processed.add(url);
-                }
+            // Filter out small icons (profile pics, etc)
+            if (width > 200 && height > 200 && !seenUrls[url]) {
+                photos.push({
+                    src: url + '=w1920-h1080-no',
+                    thumbnail: url + '=w500-h500-no',
+                    w: width,
+                    h: height,
+                    caption: '',
+                    type: 'photo'
+                });
+                seenUrls[url] = true;
             }
         }
+
+        Logger.log('Found ' + photos.length + ' photos and ' + videos.length + ' videos');
 
         return {
             photos: photos,
@@ -85,7 +75,7 @@ function getAlbumData() {
         };
 
     } catch (e) {
-        console.error(e);
+        Logger.log('Error: ' + e.message);
         return { error: e.message };
     }
 }
