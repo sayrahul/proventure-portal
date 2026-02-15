@@ -10,3 +10,11 @@ DEPLOYMENT.md
 **/*.png
 **/*.jpg
 **/*.ico
+test_*.js
+_backup/**
+album_*.html
+extracted_*.json
+css_content.txt
+js_content.txt
+
+

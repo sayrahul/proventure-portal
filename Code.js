@@ -1,7 +1,7 @@
 const ALBUM_URL = 'https://photos.app.goo.gl/PKbE1PDMfGqYrhsw8';
 
 function doGet() {
-    return HtmlService.createTemplateFromFile('index')
+    return HtmlService.createTemplateFromFile('app')
         .evaluate()
         .setTitle('ProVenture Portfolio')
         .addMetaTag('viewport', 'width=device-width, initial-scale=1')
