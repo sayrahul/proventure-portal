@@ -1,0 +1,137 @@
+<script>
+const grid = document.getElementById('gallery-grid');
+const filterBtns = document.querySelectorAll('.filter-btn');
+let currentCategory = 'photos';
+let allData = { photos: [], videos: [] };
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+});
+
+function loadData() {
+    // Check if running in Apps Script environment
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+        console.log('Fetching from backend...');
+        grid.innerHTML = '<div style="color:white;text-align:center;width:100%;">Loading Portfolio...</div>';
+        google.script.run
+            .withSuccessHandler(onDataLoaded)
+            .withFailureHandler(onError)
+            .getAlbumData();
+    } else {
+        console.log('Running locally, using mock data.');
+        onDataLoaded(mockData);
+    }
+}
+
+function onDataLoaded(data) {
+    console.log('Data loaded:', data);
+    if (data.error) {
+        onError(data.error);
+        return;
+    }
+    
+    allData = data;
+    // If backend doesn't separate videos yet, we might want to manually categorize or just show all in photos
+    // For now, if videos list is empty but photos has items, we just show photos.
+    
+    renderGallery(currentCategory);
+}
+
+function onError(error) {
+    console.error('Error:', error);
+    grid.innerHTML = `<div style="color:red;text-align:center;width:100%;">Error loading portfolio: ${error}</div>`;
+}
+
+function filterGallery(category) {
+    if (currentCategory === category) return;
+    currentCategory = category;
+
+    // Update Buttons
+    filterBtns.forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // Re-render with animation
+    grid.style.opacity = '0';
+    setTimeout(() => {
+        renderGallery(category);
+        grid.style.opacity = '1';
+    }, 300);
+}
+
+function renderGallery(type) {
+    grid.innerHTML = '';
+    const items = allData[type] || [];
+
+    if (items.length === 0) {
+            grid.innerHTML = `<div style="color:var(--text-secondary);text-align:center;width:100%;padding:40px;">No ${type} found.</div>`;
+            return;
+    }
+
+    items.forEach((item, index) => {
+        const el = document.createElement('div');
+        el.className = `grid-item ${type === 'videos' ? 'video-item' : ''}`;
+        el.style.animationDelay = `${index * 50}ms`;
+        
+        // Content
+        let mediaHtml;
+        if (type === 'photos') {
+            // Use thumbnail for grid, high-res for lightbox
+            // Google Photos URLs are dynamic, we already appended params in backend
+            mediaHtml = `<img src="${item.thumbnail || item.src}" alt="${item.caption || 'Portfolio Image'}" loading="lazy">`;
+        } else {
+            mediaHtml = `
+                <div class="video-wrapper">
+                    <img src="${item.thumbnail}" alt="${item.caption || 'Video'}" loading="lazy">
+                    <div class="play-icon"><i class="ri-play-fill"></i></div>
+                </div>`;
+        }
+
+        el.innerHTML = `
+            ${mediaHtml}
+            <div class="grid-overlay">
+                <div class="item-info">
+                    <h3>${item.caption || ''}</h3>
+                </div>
+            </div>
+        `;
+
+        // Observe for fade-in
+        setTimeout(() => el.classList.add('visible'), 50 + index * 50);
+
+        // Click event
+        el.onclick = () => openLightbox(item, type);
+
+        grid.appendChild(el);
+    });
+}
+
+// Lightbox Functions
+const lightbox = document.getElementById('lightbox');
+const lightboxContent = document.getElementById('lightbox-content');
+
+function openLightbox(item, type) {
+    lightboxContent.innerHTML = '';
+    
+    if (type === 'photos') {
+        const img = document.createElement('img');
+        img.src = item.src; // High res
+        lightboxContent.appendChild(img);
+    } else {
+        const video = document.createElement('video');
+        video.src = item.src;
+        video.controls = true;
+        video.autoplay = true;
+        lightboxContent.appendChild(video);
+    }
+
+    lightbox.classList.add('active');
+}
+
+function closeLightbox(e) {
+    if (e.target === lightbox || e.target.classList.contains('close-lightbox')) {
+        lightbox.classList.remove('active');
+        lightboxContent.innerHTML = ''; // Stop video
+    }
+}
+</script>

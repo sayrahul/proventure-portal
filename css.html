@@ -1,0 +1,405 @@
+<style>:root {</style>
+<style>    --bg-color: #0a0a0a;</style>
+<style>    --surface-color: #121212;</style>
+<style>    --primary-color: #6366f1; /* Indigo-like */</style>
+<style>    --accent-color: #ec4899; /* Pink-like */</style>
+<style>    --text-primary: #ffffff;</style>
+<style>    --text-secondary: #a1a1aa;</style>
+<style>    --border-color: #27272a;</style>
+<style>    --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);</style>
+<style>}</style>
+<style></style>
+<style>* {</style>
+<style>    margin: 0;</style>
+<style>    padding: 0;</style>
+<style>    box-sizing: border-box;</style>
+<style>}</style>
+<style></style>
+<style>body {</style>
+<style>    background-color: var(--bg-color);</style>
+<style>    color: var(--text-primary);</style>
+<style>    font-family: 'Outfit', sans-serif;</style>
+<style>    overflow-x: hidden;</style>
+<style>    -webkit-font-smoothing: antialiased;</style>
+<style>}</style>
+<style></style>
+<style>/* --- Header & Nav --- */</style>
+<style>header {</style>
+<style>    position: fixed;</style>
+<style>    top: 0;</style>
+<style>    width: 100%;</style>
+<style>    padding: 20px 40px;</style>
+<style>    z-index: 1000;</style>
+<style>    display: flex;</style>
+<style>    justify-content: space-between;</style>
+<style>    align-items: center;</style>
+<style>    background: rgba(10, 10, 10, 0.8);</style>
+<style>    backdrop-filter: blur(12px);</style>
+<style>    border-bottom: 1px solid rgba(255, 255, 255, 0.05);</style>
+<style>    transition: var(--transition);</style>
+<style>}</style>
+<style></style>
+<style>.logo-container {</style>
+<style>    display: flex;</style>
+<style>    align-items: center;</style>
+<style>    gap: 12px;</style>
+<style>    text-decoration: none;</style>
+<style>    color: white;</style>
+<style>}</style>
+<style></style>
+<style>.logo-img {</style>
+<style>    height: 40px;</style>
+<style>    width: auto;</style>
+<style>}</style>
+<style></style>
+<style>.brand-name {</style>
+<style>    font-family: 'Space Grotesk', sans-serif;</style>
+<style>    font-weight: 700;</style>
+<style>    font-size: 1.5rem;</style>
+<style>    letter-spacing: -0.02em;</style>
+<style>    background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);</style>
+<style>    -webkit-background-clip: text;</style>
+<style>    -webkit-text-fill-color: transparent;</style>
+<style>}</style>
+<style></style>
+<style>nav button {</style>
+<style>    background: transparent;</style>
+<style>    border: none;</style>
+<style>    color: var(--text-secondary);</style>
+<style>    font-family: 'Space Grotesk', sans-serif;</style>
+<style>    font-weight: 500;</style>
+<style>    font-size: 1rem;</style>
+<style>    margin-left: 2rem;</style>
+<style>    cursor: pointer;</style>
+<style>    position: relative;</style>
+<style>    transition: var(--transition);</style>
+<style>}</style>
+<style></style>
+<style>nav button.active, nav button:hover {</style>
+<style>    color: var(--text-primary);</style>
+<style>}</style>
+<style></style>
+<style>nav button.active::after {</style>
+<style>    content: '';</style>
+<style>    position: absolute;</style>
+<style>    bottom: -5px;</style>
+<style>    left: 0;</style>
+<style>    width: 100%;</style>
+<style>    height: 2px;</style>
+<style>    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));</style>
+<style>    border-radius: 2px;</style>
+<style>}</style>
+<style></style>
+<style>/* --- Hero Section --- */</style>
+<style>.hero {</style>
+<style>    height: 80vh;</style>
+<style>    display: flex;</style>
+<style>    flex-direction: column;</style>
+<style>    justify-content: center;</style>
+<style>    align-items: center;</style>
+<style>    text-align: center;</style>
+<style>    padding: 0 20px;</style>
+<style>    position: relative;</style>
+<style>    overflow: hidden;</style>
+<style>}</style>
+<style></style>
+<style>.hero-bg-glow {</style>
+<style>    position: absolute;</style>
+<style>    width: 600px;</style>
+<style>    height: 600px;</style>
+<style>    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(10, 10, 10, 0) 70%);</style>
+<style>    top: 50%;</style>
+<style>    left: 50%;</style>
+<style>    transform: translate(-50%, -50%);</style>
+<style>    pointer-events: none;</style>
+<style>    z-index: 0;</style>
+<style>}</style>
+<style></style>
+<style>.hero h1 {</style>
+<style>    font-family: 'Space Grotesk', sans-serif;</style>
+<style>    font-size: 5rem;</style>
+<style>    font-weight: 700;</style>
+<style>    line-height: 1.1;</style>
+<style>    margin-bottom: 20px;</style>
+<style>    z-index: 1;</style>
+<style>    opacity: 0;</style>
+<style>    transform: translateY(30px);</style>
+<style>    animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;</style>
+<style>}</style>
+<style></style>
+<style>.hero h1 span {</style>
+<style>    background: linear-gradient(135deg, #fff 30%, #a1a1aa 100%);</style>
+<style>    -webkit-background-clip: text;</style>
+<style>    -webkit-text-fill-color: transparent;</style>
+<style>}</style>
+<style></style>
+<style>.hero h1 .highlight {</style>
+<style>        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));</style>
+<style>    -webkit-background-clip: text;</style>
+<style>    -webkit-text-fill-color: transparent;</style>
+<style>}</style>
+<style></style>
+<style>.hero p {</style>
+<style>    font-size: 1.25rem;</style>
+<style>    color: var(--text-secondary);</style>
+<style>    max-width: 600px;</style>
+<style>    z-index: 1;</style>
+<style>    opacity: 0;</style>
+<style>    transform: translateY(30px);</style>
+<style>    animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s;</style>
+<style>}</style>
+<style></style>
+<style>.scroll-indicator {</style>
+<style>    position: absolute;</style>
+<style>    bottom: 40px;</style>
+<style>    left: 50%;</style>
+<style>    transform: translateX(-50%);</style>
+<style>    display: flex;</style>
+<style>    flex-direction: column;</style>
+<style>    align-items: center;</style>
+<style>    gap: 8px;</style>
+<style>    color: var(--text-secondary);</style>
+<style>    font-size: 0.875rem;</style>
+<style>    opacity: 0;</style>
+<style>    animation: fadeIn 1s ease forwards 1s;</style>
+<style>}</style>
+<style></style>
+<style>.mouse {</style>
+<style>    width: 24px;</style>
+<style>    height: 40px;</style>
+<style>    border: 2px solid var(--border-color);</style>
+<style>    border-radius: 12px;</style>
+<style>    position: relative;</style>
+<style>}</style>
+<style></style>
+<style>.wheel {</style>
+<style>    width: 4px;</style>
+<style>    height: 4px;</style>
+<style>    background: var(--text-primary);</style>
+<style>    border-radius: 50%;</style>
+<style>    position: absolute;</style>
+<style>    top: 8px;</style>
+<style>    left: 50%;</style>
+<style>    transform: translateX(-50%);</style>
+<style>    animation: scrollWheel 2s infinite;</style>
+<style>}</style>
+<style></style>
+<style>/* --- Gallery Section --- */</style>
+<style>.gallery-container {</style>
+<style>    padding: 40px 40px 100px;</style>
+<style>    max-width: 1600px;</style>
+<style>    margin: 0 auto;</style>
+<style>    position: relative;</style>
+<style>    z-index: 2;</style>
+<style>}</style>
+<style></style>
+<style>.filter-bar {</style>
+<style>    display: flex;</style>
+<style>    justify-content: center;</style>
+<style>    gap: 20px;</style>
+<style>    margin-bottom: 60px;</style>
+<style>    opacity: 0;</style>
+<style>    transform: translateY(20px);</style>
+<style>    animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.6s;</style>
+<style>}</style>
+<style></style>
+<style>.filter-btn {</style>
+<style>    background: var(--surface-color);</style>
+<style>    border: 1px solid var(--border-color);</style>
+<style>    color: var(--text-secondary);</style>
+<style>    padding: 12px 32px;</style>
+<style>    border-radius: 100px;</style>
+<style>    font-size: 1rem;</style>
+<style>    font-weight: 500;</style>
+<style>    cursor: pointer;</style>
+<style>    transition: var(--transition);</style>
+<style>    display: flex;</style>
+<style>    align-items: center;</style>
+<style>    gap: 8px;</style>
+<style>}</style>
+<style></style>
+<style>.filter-btn:hover {</style>
+<style>    background: #1f1f22;</style>
+<style>    color: var(--text-primary);</style>
+<style>    border-color: #3f3f46;</style>
+<style>}</style>
+<style></style>
+<style>.filter-btn.active {</style>
+<style>    background: var(--text-primary);</style>
+<style>    color: var(--bg-color);</style>
+<style>    border-color: var(--text-primary);</style>
+<style>}</style>
+<style></style>
+<style>/* --- Masonry Layout --- */</style>
+<style>.grid {</style>
+<style>    columns: 4 300px;</style>
+<style>    column-gap: 24px;</style>
+<style>    width: 100%;</style>
+<style>}</style>
+<style></style>
+<style>.grid-item {</style>
+<style>    break-inside: avoid;</style>
+<style>    margin-bottom: 24px;</style>
+<style>    border-radius: 16px;</style>
+<style>    overflow: hidden;</style>
+<style>    position: relative;</style>
+<style>    cursor: pointer;</style>
+<style>    opacity: 0;</style>
+<style>    transform: translateY(20px);</style>
+<style>    transition: var(--transition);</style>
+<style>}</style>
+<style></style>
+<style>.grid-item.visible {</style>
+<style>    opacity: 1;</style>
+<style>    transform: translateY(0);</style>
+<style>}</style>
+<style></style>
+<style>.grid-item img, .grid-item video {</style>
+<style>    width: 100%;</style>
+<style>    height: auto;</style>
+<style>    display: block;</style>
+<style>    border-radius: 16px;</style>
+<style>    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);</style>
+<style>}</style>
+<style></style>
+<style>.grid-item:hover img, .grid-item:hover video {</style>
+<style>    transform: scale(1.05);</style>
+<style>}</style>
+<style></style>
+<style>.grid-overlay {</style>
+<style>    position: absolute;</style>
+<style>    inset: 0;</style>
+<style>    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);</style>
+<style>    opacity: 0;</style>
+<style>    transition: var(--transition);</style>
+<style>    display: flex;</style>
+<style>    align-items: flex-end;</style>
+<style>    padding: 24px;</style>
+<style>}</style>
+<style></style>
+<style>.grid-item:hover .grid-overlay {</style>
+<style>    opacity: 1;</style>
+<style>}</style>
+<style></style>
+<style>.item-info h3 {</style>
+<style>    font-size: 1.1rem;</style>
+<style>    font-weight: 600;</style>
+<style>    margin-bottom: 4px;</style>
+<style>    transform: translateY(10px);</style>
+<style>    transition: var(--transition);</style>
+<style>    opacity: 0;</style>
+<style>}</style>
+<style></style>
+<style>    .grid-item:hover .item-info h3 {</style>
+<style>    transform: translateY(0);</style>
+<style>    opacity: 1;</style>
+<style>    }</style>
+<style></style>
+<style>.play-icon {</style>
+<style>    position: absolute;</style>
+<style>    top: 50%;</style>
+<style>    left: 50%;</style>
+<style>    transform: translate(-50%, -50%) scale(0.8);</style>
+<style>    width: 60px;</style>
+<style>    height: 60px;</style>
+<style>    background: rgba(255, 255, 255, 0.2);</style>
+<style>    backdrop-filter: blur(4px);</style>
+<style>    border-radius: 50%;</style>
+<style>    display: flex;</style>
+<style>    align-items: center;</style>
+<style>    justify-content: center;</style>
+<style>    opacity: 0;</style>
+<style>    transition: var(--transition);</style>
+<style>    pointer-events: none;</style>
+<style>}</style>
+<style></style>
+<style>.play-icon i {</style>
+<style>    font-size: 32px;</style>
+<style>    color: white;</style>
+<style>}</style>
+<style></style>
+<style>.grid-item.video-item:hover .play-icon {</style>
+<style>    opacity: 1;</style>
+<style>    transform: translate(-50%, -50%) scale(1);</style>
+<style>}</style>
+<style></style>
+<style>/* --- Lightbox --- */</style>
+<style>.lightbox {</style>
+<style>    position: fixed;</style>
+<style>    inset: 0;</style>
+<style>    background: rgba(0, 0, 0, 0.95);</style>
+<style>    z-index: 2000;</style>
+<style>    display: flex;</style>
+<style>    justify-content: center;</style>
+<style>    align-items: center;</style>
+<style>    opacity: 0;</style>
+<style>    pointer-events: none;</style>
+<style>    transition: opacity 0.3s ease;</style>
+<style>}</style>
+<style></style>
+<style>.lightbox.active {</style>
+<style>    opacity: 1;</style>
+<style>    pointer-events: all;</style>
+<style>}</style>
+<style></style>
+<style>.lightbox-content {</style>
+<style>    max-width: 90vw;</style>
+<style>    max-height: 90vh;</style>
+<style>    position: relative;</style>
+<style>}</style>
+<style></style>
+<style>.lightbox-content img, .lightbox-content video {</style>
+<style>    max-width: 100%;</style>
+<style>    max-height: 90vh;</style>
+<style>    border-radius: 4px;</style>
+<style>    box-shadow: 0 0 50px rgba(0,0,0,0.5);</style>
+<style>}</style>
+<style></style>
+<style>.close-lightbox {</style>
+<style>    position: absolute;</style>
+<style>    top: 30px;</style>
+<style>    right: 30px;</style>
+<style>    background: transparent;</style>
+<style>    border: none;</style>
+<style>    color: white;</style>
+<style>    font-size: 2rem;</style>
+<style>    cursor: pointer;</style>
+<style>    z-index: 2001;</style>
+<style>}</style>
+<style></style>
+<style>/* --- Footer --- */</style>
+<style>footer {</style>
+<style>    text-align: center;</style>
+<style>    padding: 60px 20px;</style>
+<style>    border-top: 1px solid var(--border-color);</style>
+<style>    color: var(--text-secondary);</style>
+<style>}</style>
+<style></style>
+<style>/* --- Animations --- */</style>
+<style>@keyframes fadeUp {</style>
+<style>    to {</style>
+<style>        opacity: 1;</style>
+<style>        transform: translateY(0);</style>
+<style>    }</style>
+<style>}</style>
+<style></style>
+<style>@keyframes fadeIn {</style>
+<style>    to {</style>
+<style>        opacity: 1;</style>
+<style>    }</style>
+<style>}</style>
+<style></style>
+<style>@keyframes scrollWheel {</style>
+<style>    0% { transform: translateX(-50%) translateY(0); opacity: 1; }</style>
+<style>    100% { transform: translateX(-50%) translateY(12px); opacity: 0; }</style>
+<style>}</style>
+<style></style>
+<style>@media (max-width: 768px) {</style>
+<style>    .hero h1 { font-size: 3rem; }</style>
+<style>    .grid { columns: 2 200px; }</style>
+<style>    header { padding: 15px 20px; }</style>
+<style>}</style>
+<style></style>
+<style>@media (max-width: 480px) {</style>
+<style>    .grid { columns: 1 auto; }</style>
+<style>}</style>
