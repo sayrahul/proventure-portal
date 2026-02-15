@@ -522,23 +522,20 @@
         });
 
         function loadData() {
-            console.log('Fetching from backend API...');
+            console.log('Fetching from backend via JSONP...');
             grid.innerHTML = '<div style="color:white;text-align:center;width:100%;">Loading Portfolio...</div>';
 
-            fetch(API_URL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => onDataLoaded(data))
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    // Fallback to mock data if API fails (or CORS issue locally)
-                    console.log('Falling back to mock data due to API error.');
-                    onDataLoaded(mockData);
-                });
+            // JSONP implementation to bypass CORS
+            const script = document.createElement('script');
+            // Append ?callback=onDataLoaded to the URL
+            script.src = API_URL + (API_URL.includes('?') ? '&' : '?') + 'callback=onDataLoaded';
+            script.onerror = (e) => {
+                console.error('Script load error:', e);
+                // Fallback to mock data if API fails
+                console.log('Falling back to mock data due to API error.');
+                onDataLoaded(mockData);
+            };
+            document.body.appendChild(script);
         }
 
         function onDataLoaded(data) {
