@@ -1,4 +1,4 @@
-<script>
+﻿
 const grid = document.getElementById('gallery-grid');
 const filterBtns = document.querySelectorAll('.filter-btn');
 let currentCategory = 'photos';
@@ -134,4 +134,5 @@ function closeLightbox(e) {
         lightboxContent.innerHTML = ''; // Stop video
     }
 }
-</script>
+
+
