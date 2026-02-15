@@ -32,8 +32,9 @@ function getAlbumData() {
         const seenUrls = {}; // Use object for faster lookups
 
         // 1. Find Videos first
-        // Pattern: "https://video-downloads.googleusercontent.com/...","https://lh3.googleusercontent.com/pw/..."
-        const videoPattern = /"https:\/\/video-downloads\.googleusercontent\.com\/[^"]+","(https:\/\/lh3\.googleusercontent\.com\/pw\/[^"]+)"/g;
+        // Pattern: "https://video-downloads...",["https://lh3..."
+        // Note: Google Photos uses specific structure for videos.
+        const videoPattern = /"https:\/\/video-downloads\.googleusercontent\.com\/[^"]+",\["(https:\/\/lh3\.googleusercontent\.com\/pw\/[^"]+)"/g;
 
         let vMatch;
         while ((vMatch = videoPattern.exec(html)) !== null) {
