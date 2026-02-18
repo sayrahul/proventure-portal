@@ -2,6 +2,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MasonryGrid from "@/components/MasonryGrid";
 
+export const dynamic = 'force-dynamic';
+
 async function getMedia() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return [];
