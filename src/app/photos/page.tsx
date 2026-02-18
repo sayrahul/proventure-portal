@@ -1,31 +1,14 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PhotographyClient from "@/components/PhotographyClient";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useMedia } from "@/hooks/useMedia";
 
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
-
-async function getMedia() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) return [];
-
-    try {
-        const res = await fetch(apiUrl, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch media');
-        return res.json();
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export default async function PhotographyPage() {
-    const media = await getMedia();
-
-    // Filter for photos only
-    const photos = media.filter((item: any) => item.MimeType.startsWith('image/'));
+export default function PhotographyPage() {
+    const { media, loading } = useMedia();
+    const photos = media.filter((item: any) => item.MimeType?.startsWith('image/'));
 
     return (
         <>
@@ -38,11 +21,11 @@ export default async function PhotographyPage() {
                         </h1>
                         <p className="text-slate-500 max-w-2xl text-lg">
                             A curated collection of moments captured across various industries,
-                            enhanced by AI to showcase the essence of Proventure's digital eye.
+                            enhanced by AI to showcase the essence of Proventure&apos;s digital eye.
                         </p>
                     </header>
 
-                    <PhotographyClient photos={photos} />
+                    {loading ? <LoadingSpinner /> : <PhotographyClient photos={photos} />}
                 </div>
             </main>
             <Footer />

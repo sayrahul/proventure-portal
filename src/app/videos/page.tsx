@@ -1,30 +1,14 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useMedia } from "@/hooks/useMedia";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
-
-async function getMedia() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) return [];
-
-    try {
-        const res = await fetch(apiUrl, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch media');
-        return res.json();
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export default async function VideosPage() {
-    const media = await getMedia();
-
-    // Filter for videos only (mimeType or based on your GAS logic)
-    const videos = media.filter((item: any) => !item.MimeType.startsWith('image/'));
+export default function VideosPage() {
+    const { media, loading } = useMedia();
+    const videos = media.filter((item: any) => !item.MimeType?.startsWith('image/'));
 
     return (
         <>
@@ -41,20 +25,26 @@ export default async function VideosPage() {
                         </p>
                     </header>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {videos.map((video: any) => (
-                            <VideoPlayer
-                                key={video.ID}
-                                url={video.BaseUrl}
-                                title={video.Title}
-                            />
-                        ))}
-                    </div>
+                    {loading ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {videos.map((video: any) => (
+                                    <VideoPlayer
+                                        key={video.ID}
+                                        url={video.BaseUrl}
+                                        title={video.Title}
+                                    />
+                                ))}
+                            </div>
 
-                    {videos.length === 0 && (
-                        <div className="text-center py-20 text-slate-500">
-                            No cinematic sequences found.
-                        </div>
+                            {videos.length === 0 && (
+                                <div className="text-center py-20 text-slate-500">
+                                    No cinematic sequences found.
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </main>
